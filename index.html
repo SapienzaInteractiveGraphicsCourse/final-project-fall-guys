@@ -1,7 +1,7 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta charset="UTF-8" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link
       rel="shortcut icon"
@@ -13,8 +13,17 @@
     <title>Fall Guys</title>
   </head>
   <body>
+    <div class="Loader" id="spinner">
+      <h1>Fall Guys</h1>
+      <div class="sceneLoader">
+        <img src="assets/images/logo.png" />
+      </div>
+      <h2>Loading...</h2>
+    </div>
     <canvas id="renderCanvas"></canvas>
     <script src="https://cdn.babylonjs.com/babylon.js"></script>
+    <script src="https://cdn.babylonjs.com/materialsLibrary/babylonjs.materials.min.js"></script>
+    <script src="https://cdn.babylonjs.com/loaders/babylonjs.loaders.min.js"></script>
     <script src="assets/js/game.js"></script>
   </body>
 </html>

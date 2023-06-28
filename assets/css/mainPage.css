@@ -1,10 +1,84 @@
 html, body {
-    margin: 0;
-    padding: 0;
-    overflow: hidden;
+  overflow: hidden;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+#renderCanvas {
+  width: 100%;
+  height: 100%;
+  touch-action: none;
+}
+
+.Loader {
+  position: absolute;
+  background-color: #9a84be;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+}
+
+.Loader h1 {
+  font-family: 'Comic Sans MS', cursive; /* Choose a cartoon-style font */
+  font-size: 50px; /* Adjust the font size as needed */
+  color: black; /* Choose a suitable text color */
+  text-shadow: 5px 5px 4px rgba(0, 0, 0, 0.5); /* Add a shadow effect */
+  letter-spacing: 4px; /* Adjust the letter spacing as needed */
+  line-height: 1.2; /* Adjust the line height as needed */
+  text-transform: uppercase; /* Convert the text to uppercase */
+}
+
+.hidden {
+  display: none;
+}
+
+.Loader h2 {
+  font-family: 'Comic Sans MS', cursive; /* Choose a cartoon-style font */
+  font-size: 30px; /* Adjust the font size as needed */
+  color: black; /* Choose a suitable text color */
+  text-shadow: 5px 5px 4px rgba(0, 0, 0, 0.5); /* Add a shadow effect */
+  letter-spacing: 4px; /* Adjust the letter spacing as needed */
+  line-height: 1.2; /* Adjust the line height as needed */
+  text-transform: uppercase; /* Convert the text to uppercase */
+}
+
+.sceneLoader {
+  border: 16px solid #f3f3f3;
+  border-top: 16px solid #30d8de;
+  /* Dark Green */
+  border-radius: 50%;
+  width: 120px;
+  height: 120px;
+  animation: spinloader 2s linear infinite;
+}
+
+.sceneLoader img {
+  height: 120px;
+  width: 120px;
+  animation: spinlogo 2s linear infinite;
+}
+
+@keyframes spinloader {
+  0% {
+      transform: rotate(0deg);
   }
-  
-  #renderCanvas {
-    width: 100%;
-    height: 100%;
+
+  100% {
+      transform: rotate(360deg);
   }
+}
+
+@keyframes spinlogo {
+  0% {
+      transform: rotate(360deg);
+  }
+
+  100% {
+      transform: rotate(0deg);
+  }
+}
