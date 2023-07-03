@@ -4,26 +4,33 @@
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css"
+      integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
+      crossorigin="anonymous"
+    />
+    <link
       rel="shortcut icon"
       href="assets/static/favicon.ico"
       type="image/x-icon"
     />
     <link rel="icon" href="assets/static/favicon.ico" type="image/x-icon" />
-    <link rel="stylesheet" type="text/css" href="assets/css/mainPage.css" />
+    <link rel="stylesheet" type="text/css" href="assets/css/startPage.css" />
     <title>Fall Guys</title>
   </head>
   <body>
-    <div class="Loader" id="spinner">
-      <h1>Fall Guys</h1>
-      <div class="sceneLoader">
-        <img src="assets/images/logo.png" />
+    <div
+      class="container-fluid h-100 d-flex align-items-center justify-content-center"
+    >
+      <div class="d-flex flex-column">
+        <button class="btn btn-primary" onclick="goToPage()">Start</button>
+        <button class="btn btn-secondary">Options</button>
       </div>
-      <h2>Loading...</h2>
     </div>
-    <canvas id="renderCanvas"></canvas>
-    <script src="https://cdn.babylonjs.com/babylon.js"></script>
-    <script src="https://cdn.babylonjs.com/materialsLibrary/babylonjs.materials.min.js"></script>
-    <script src="https://cdn.babylonjs.com/loaders/babylonjs.loaders.min.js"></script>
-    <script src="assets/js/game.js"></script>
+    <script>
+      function goToPage() {
+        window.location.href = "game.html";
+      }
+    </script>
   </body>
 </html>

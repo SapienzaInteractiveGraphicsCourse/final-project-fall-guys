@@ -1,0 +1,19 @@
+body {
+    margin: 0;
+    padding: 0;
+    height: 100vh; /* Set body height to 100% of the viewport height */
+    width: 100vw; /* Set body width to 100% of the viewport width */
+    background-image: url("../images/homepage.jpg");
+    background-repeat: no-repeat;
+    background-size: cover;
+  }
+
+  .container-fluid {
+    backdrop-filter: blur(2px); /* Apply blur effect to the background image */
+  }
+  
+  .btn {
+    font-size: 50px; /* Increase the font size */
+    padding: 15px 30px; /* Increase the button padding */
+    margin-top: 20px; /* Add some margin at the top */
+  }

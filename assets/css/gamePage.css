@@ -13,6 +13,7 @@ html, body {
 }
 
 .Loader {
+  z-index: 9999;
   position: absolute;
   background-color: #9a84be;
   width: 100%;
