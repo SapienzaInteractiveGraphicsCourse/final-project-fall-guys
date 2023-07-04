@@ -13,6 +13,9 @@ const Assets = {
     models: {
         player: {
             Url: "assets/static/models/player/"
+        },
+        platform: {
+            Url: "assets/static/models/platform/"
         }
     }
 };
@@ -52,6 +55,7 @@ var cubes = [];
 const keyStatus = { 87: false, 65: false, 83: false, 68: false };
 var movementAmount = 0.1; // Adjust the movement speed as needed
 
+var platform = null;
 
 const createScene = function () {
     configure_movement_listeners();
@@ -61,8 +65,8 @@ const createScene = function () {
 
     //createGround(scene);
 
-    var camera = new BABYLON.ArcRotateCamera("Camera", 3 * Math.PI / 2, Math.PI / 4, 100, BABYLON.Vector3.Zero(), scene);
-    camera.attachControl(canvas, true, false);
+    var camera = new BABYLON.FreeCamera("Camera", new BABYLON.Vector3(-5, 160, -50), scene);
+    camera.attachControl();
 
     var light = new BABYLON.HemisphericLight("light", new BABYLON.Vector3(0, 1, 0), scene);
 
@@ -91,16 +95,51 @@ const createScene = function () {
     water.addToRenderList(skybox);
     waterMesh.material = water;
 
-    var player = BABYLON.SceneLoader.ImportMesh("", Assets.models.player.Url, "player.glb", scene, () => {
-
-        scene.getMeshByName("__root__").position.y += 2; // Move forward along the z-axis
+    var playerScene = BABYLON.SceneLoader.ImportMesh("", Assets.models.player.Url, "player.glb", scene, (meshes) => {
+        var player = scene.getMeshByName("__root__");
+        player.position.y += 140.25;
+        player.position.z -= 15;
+        player.position.x -= 20;
         BabylonEngine.hideLoadingUI();
     }
     );
 
+    var platformScene = BABYLON.SceneLoader.ImportMesh("", Assets.models.platform.Url, "platform.babylon", scene, (meshes) => {
+        var platform = meshes[0];
+        var exagons = platform.getChildMeshes();
+        for (var i = 0; i < exagons.length; i++) {
+            var mat = new BABYLON.StandardMaterial("Mat", scene);
+            mat.diffuseColor = new BABYLON.Color3(1, 0.5, 0);
+            mat.specularColor = new BABYLON.Color3(0.5, 0.6, 0.87);
+            mat.emissiveColor = new BABYLON.Color3.FromHexString(generateRandomColor()).toLinearSpace();
+            mat.ambientColor = new BABYLON.Color3(0.23, 0.98, 0.53);
+            exagons[i].material = mat;
+        };
+        platform.position.y += 100; // Move forward along the z-axis
+
+        // Create clones of the mesh
+        for (var i = 1; i < 5; i++) {
+
+            var clonedPlatform = platform.clone("Cloned_Platform_" + i);
+            clonedPlatform.position.y += 10 * i;
+
+        }
+
+        BabylonEngine.hideLoadingUI();
+    }
+    );
 
     return scene;
 };
+
+function generateRandomColor() {
+    let maxVal = 0xFFFFFF; // 16777215
+    let randomNumber = Math.random() * maxVal;
+    randomNumber = Math.floor(randomNumber);
+    randomNumber = randomNumber.toString(16);
+    let randColor = randomNumber.padStart(6, 0);
+    return `#${randColor.toUpperCase()}`
+}
 
 
 window.initFunction = async function () {
