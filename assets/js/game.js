@@ -64,24 +64,11 @@ const createScene = function () {
     const scene = new BABYLON.Scene(BabylonEngine);
 
     // Parameters: name, position, scene
-    const camera = new BABYLON.FollowCamera("FollowCam", new BABYLON.Vector3(0, 10, -10), scene);
-
-    // The goal distance of camera from target
-    camera.radius = 30;
-
-    // The goal height of camera above local origin (centre) of target
-    camera.heightOffset = 10;
-
-    // The goal rotation of camera around local origin (centre) of target in x y plane
+    const camera = new BABYLON.FollowCamera("FollowCam", new BABYLON.Vector3(100 - 10, 100), scene);
+    camera.heightOffset = 2;
     camera.rotationOffset = 0;
-
-    // Acceleration of camera in moving from current to goal position
-    camera.cameraAcceleration = 0.01;
-
-    // The speed at which acceleration is halted
-    camera.maxCameraSpeed = 10;
-
-    // This attaches the camera to the canvas
+    camera.cameraAcceleration = .1;
+    camera.maxCameraSpeed = 1;
     camera.attachControl(canvas, true);
 
 
