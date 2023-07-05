@@ -63,10 +63,27 @@ const createScene = function () {
     // Creates a basic Babylon Scene object
     const scene = new BABYLON.Scene(BabylonEngine);
 
-    //createGround(scene);
+    // Parameters: name, position, scene
+    const camera = new BABYLON.FollowCamera("FollowCam", new BABYLON.Vector3(0, 10, -10), scene);
 
-    var camera = new BABYLON.FreeCamera("Camera", new BABYLON.Vector3(-5, 160, -50), scene);
-    camera.attachControl();
+    // The goal distance of camera from target
+    camera.radius = 30;
+
+    // The goal height of camera above local origin (centre) of target
+    camera.heightOffset = 10;
+
+    // The goal rotation of camera around local origin (centre) of target in x y plane
+    camera.rotationOffset = 0;
+
+    // Acceleration of camera in moving from current to goal position
+    camera.cameraAcceleration = 0.01;
+
+    // The speed at which acceleration is halted
+    camera.maxCameraSpeed = 10;
+
+    // This attaches the camera to the canvas
+    camera.attachControl(canvas, true);
+
 
     var light = new BABYLON.HemisphericLight("light", new BABYLON.Vector3(0, 1, 0), scene);
 
@@ -97,14 +114,15 @@ const createScene = function () {
 
     var playerScene = BABYLON.SceneLoader.ImportMesh("", Assets.models.player.Url, "player.glb", scene, (meshes) => {
         var player = scene.getMeshByName("__root__");
-        player.position.y += 140.25;
-        player.position.z -= 15;
-        player.position.x -= 20;
-        BabylonEngine.hideLoadingUI();
+        player.position.y += 150.25;
+        player.position.z = -27.6;
+        player.position.x = -17;
+
+        camera.lockedTarget = player;
     }
     );
 
-    var platformScene = BABYLON.SceneLoader.ImportMesh("", Assets.models.platform.Url, "platform.babylon", scene, (meshes) => {
+    var platformScene = BABYLON.SceneLoader.ImportMesh("", Assets.models.platform.Url, "platform.glb", scene, (meshes) => {
         var platform = meshes[0];
         var exagons = platform.getChildMeshes();
         for (var i = 0; i < exagons.length; i++) {
@@ -125,6 +143,13 @@ const createScene = function () {
 
         }
 
+    }
+    );
+
+    var hexagonScene = BABYLON.SceneLoader.ImportMesh("", Assets.models.platform.Url, "hexagon.glb", scene, (meshes) => {
+        meshes[0].position.y += 150;
+        meshes[0].position.x -= 15;
+        meshes[0].position.z -= 20;
         BabylonEngine.hideLoadingUI();
     }
     );
@@ -188,7 +213,7 @@ function configure_movement_listeners() {
 function move_player() {
     if (keyStatus[87]) {
         // 'W' key or up arrow key
-        scene.getMeshByName("__root__").position.z += movementAmount; // Move forward along the z-axis
+        scene.getMeshByName("__root__").position.z += movementAmount; //
     }
     if (keyStatus[65]) {
         // 'A' key or left arrow key
