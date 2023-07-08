@@ -16,6 +16,9 @@ const Assets = {
         },
         platform: {
             Url: "assets/static/models/platform/"
+        },
+        hexagon: {
+            Url: "assets/static/models/platform/"
         }
     }
 };
@@ -48,6 +51,8 @@ var createDefaultEngine = function () {
 
 //CONFIGURATION
 const canvas = document.getElementById("renderCanvas");
+let player = null;
+let hexagonsMap = [];
 var BabylonEngine = null;
 var sceneToRender = null;
 
@@ -57,7 +62,7 @@ var movementAmount = 0.1; // Adjust the movement speed as needed
 
 var platform = null;
 
-const createScene = function () {
+const createScene = async function () {
     configure_movement_listeners();
     BabylonEngine.displayLoadingUI();
     // Creates a basic Babylon Scene object
@@ -99,47 +104,112 @@ const createScene = function () {
     water.addToRenderList(skybox);
     waterMesh.material = water;
 
-    var playerScene = BABYLON.SceneLoader.ImportMesh("", Assets.models.player.Url, "player.glb", scene, (meshes) => {
-        var player = scene.getMeshByName("__root__");
-        player.position.y += 150.25;
-        player.position.z = -27.6;
-        player.position.x = -17;
+    let [playerScene, platformScene, hexagonScene] = await Promise.all([
+        BABYLON.SceneLoader.ImportMeshAsync("", Assets.models.player.Url, "player1.glb", scene),
+        BABYLON.SceneLoader.ImportMeshAsync("", Assets.models.platform.Url, "platform.glb", scene),
+        BABYLON.SceneLoader.ImportMeshAsync("", Assets.models.hexagon.Url, "hexagon.glb", scene)
+    ])
 
-        camera.lockedTarget = player;
-    }
-    );
+    var platform = platformScene["meshes"][0];
 
-    var platformScene = BABYLON.SceneLoader.ImportMesh("", Assets.models.platform.Url, "platform.glb", scene, (meshes) => {
-        var platform = meshes[0];
-        var exagons = platform.getChildMeshes();
-        for (var i = 0; i < exagons.length; i++) {
+    var exagons = platform._children;
+    for (var i = 0; i < exagons.length; i++) {
+        var mat = new BABYLON.StandardMaterial("Mat", scene);
+        mat.diffuseColor = new BABYLON.Color3(1, 0.5, 0);
+        mat.specularColor = new BABYLON.Color3(0.5, 0.6, 0.87);
+        mat.emissiveColor = new BABYLON.Color3.FromHexString(generateRandomColor()).toLinearSpace();
+        mat.ambientColor = new BABYLON.Color3(0.23, 0.98, 0.53);
+        exagons[i].material = mat;
+
+        var boundingInfo = exagons[i].getBoundingInfo();
+        var renderingPosition = boundingInfo.boundingBox.centerWorld;
+        var hexagonCollisionBoxDimensions = new BABYLON.Vector3(2.0, 0.5, 1.75);
+        var hexagonCollisionBox = BABYLON.MeshBuilder.CreateBox("hexagonCollisionBox_" + i, { width: hexagonCollisionBoxDimensions.x, height: hexagonCollisionBoxDimensions.y, depth: hexagonCollisionBoxDimensions.z }, scene);
+        hexagonCollisionBox.position = renderingPosition;
+
+        hexagonCollisionBox.isVisible = false;
+        hexagonsMap.push([exagons[i], hexagonCollisionBox])
+    };
+    platform.position.y += 100; // Move forward along the z-axis
+
+    // Create clones of the mesh
+    for (var i = 1; i < 5; i++) {
+        var clonedPlatform = platform.clone("Cloned_Platform_" + i);
+        var exagons = clonedPlatform._children;
+        for (var j = 0; j < exagons.length; j++) {
             var mat = new BABYLON.StandardMaterial("Mat", scene);
             mat.diffuseColor = new BABYLON.Color3(1, 0.5, 0);
             mat.specularColor = new BABYLON.Color3(0.5, 0.6, 0.87);
             mat.emissiveColor = new BABYLON.Color3.FromHexString(generateRandomColor()).toLinearSpace();
             mat.ambientColor = new BABYLON.Color3(0.23, 0.98, 0.53);
-            exagons[i].material = mat;
-        };
-        platform.position.y += 100; // Move forward along the z-axis
+            exagons[j].material = mat;
 
-        // Create clones of the mesh
-        for (var i = 1; i < 5; i++) {
+            var boundingInfo = exagons[j].getBoundingInfo();
+            var renderingPosition = boundingInfo.boundingBox.centerWorld;
+            var hexagonCollisionBoxDimensions = new BABYLON.Vector3(2.0, 0.5, 1.75);
+            var hexagonCollisionBox = BABYLON.MeshBuilder.CreateBox("hexagon" + i + "CollisionBox_" + j, { width: hexagonCollisionBoxDimensions.x, height: hexagonCollisionBoxDimensions.y, depth: hexagonCollisionBoxDimensions.z }, scene);
+            hexagonCollisionBox.position = renderingPosition;
 
-            var clonedPlatform = platform.clone("Cloned_Platform_" + i);
-            clonedPlatform.position.y += 10 * i;
-
+            hexagonCollisionBox.isVisible = false;
+            hexagonsMap.push([exagons[j], hexagonCollisionBox])
         }
+        clonedPlatform.position.y += 10 * i;
 
     }
-    );
 
-    var hexagonScene = BABYLON.SceneLoader.ImportMesh("", Assets.models.platform.Url, "hexagon.glb", scene, (meshes) => {
-        meshes[0].position.y += 150;
-        meshes[0].position.x -= 15;
-        meshes[0].position.z -= 20;
-        BabylonEngine.hideLoadingUI();
-    }
-    );
+    var hexagon = hexagonScene["meshes"][0]._children[0];
+
+    player = playerScene["meshes"][0];
+
+
+    // Detach the meshes from their parent nodes
+    hexagon.parent = null;
+
+    // Set the position of the hexagon and player to the same vector
+    var targetPosition = new BABYLON.Vector3(-15, 150, -15);
+    hexagon.position.copyFrom(targetPosition);
+    player.position.copyFrom(targetPosition);
+    player.position.y += 0.14;
+    camera.lockedTarget = player;
+
+
+    var mat1 = new BABYLON.StandardMaterial("Mat1", scene);
+    mat1.diffuseColor = new BABYLON.Color3(1, 0.5, 0);
+    mat1.specularColor = new BABYLON.Color3(0.5, 0.6, 0.87);
+    mat1.emissiveColor = new BABYLON.Color3.FromHexString(generateRandomColor()).toLinearSpace();
+    mat1.ambientColor = new BABYLON.Color3(0.23, 0.98, 0.53);
+    hexagon.material = mat1;
+
+
+    // Define custom dimensions and positions for the collision boxes
+    var playerCollisionBoxDimensions = new BABYLON.Vector3(0.65, 0.3, 0.52);
+    var playerCollisionBoxPosition = new BABYLON.Vector3(0.7, 0.2, 1.5);
+
+    // Create custom collision boxes based on the defined dimensions and positions
+    var playerCollisionBox = BABYLON.MeshBuilder.CreateBox("playerCollisionBox", { width: playerCollisionBoxDimensions.x, height: playerCollisionBoxDimensions.y, depth: playerCollisionBoxDimensions.z }, scene);
+    playerCollisionBox.parent = player;
+    playerCollisionBox.position.copyFrom(playerCollisionBoxPosition);
+
+    // Set the visibility of the collision boxes to false
+    playerCollisionBox.isVisible = false;
+
+    // Register a collision function for the player and hexagon collision boxes
+    scene.registerBeforeRender(function () {
+
+        for (var i = 0; i < hexagonsMap.length; i++) {
+            var hexagonBox = hexagonsMap[i][1];
+
+            // Perform intersection check between player mesh and hexagon mesh
+            if (player.intersectsMesh(hexagonBox, true)) {
+                // Collision between player and hexagon detected
+                console.log("Collision between player and hexagon", i);
+                // Perform desired actions when collision occurs
+                // ...
+            }
+        }
+    });
+
+    BabylonEngine.hideLoadingUI();
 
     return scene;
 };
@@ -168,7 +238,7 @@ window.initFunction = async function () {
     window.BabylonEngine = await asyncEngineCreation();
     if (!BabylonEngine) throw 'engine should not be null.';
     startRenderLoop(BabylonEngine, canvas);
-    window.scene = createScene();
+    window.scene = await createScene();
 };
 initFunction().then(() => {
     sceneToRender = scene
@@ -198,22 +268,28 @@ function configure_movement_listeners() {
 }
 
 function move_player() {
+    if (player == null) return;
     if (keyStatus[87]) {
         // 'W' key or up arrow key
-        scene.getMeshByName("__root__").position.z += movementAmount; //
+        player.position.z += movementAmount; //
     }
     if (keyStatus[65]) {
         // 'A' key or left arrow key
-        scene.getMeshByName("__root__").position.x -= movementAmount; // Move left along the x-axis
+        player.position.x -= movementAmount;
     }
 
     if (keyStatus[83]) {
         // 'S' key or down arrow key
-        scene.getMeshByName("__root__").position.z -= movementAmount; // Move backward along the z-axis
+        player.position.z -= movementAmount; // Move backward along the z-axis
     }
 
     if (keyStatus[68]) {
         // 'D' key or right arrow key
-        scene.getMeshByName("__root__").position.x += movementAmount; // Move right along the x-axis
+        player.position.x += movementAmount;
+    }
+
+    if (keyStatus[78]) {
+        // 'D' key or right arrow key
+        player.position.y -= movementAmount;
     }
 }
