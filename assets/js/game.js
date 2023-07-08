@@ -20,6 +20,14 @@ const Assets = {
         hexagon: {
             Url: "assets/static/models/platform/"
         }
+    },
+    musics: {
+        soundtrack: {
+            Url: "assets/static/sounds/soundtrack.mp3"
+        },
+        endgame: {
+            Url: "assets/static/sounds/endgame.mp3"
+        }
     }
 };
 
@@ -67,6 +75,12 @@ const createScene = async function () {
     BabylonEngine.displayLoadingUI();
     // Creates a basic Babylon Scene object
     const scene = new BABYLON.Scene(BabylonEngine);
+    scene.enablePhysics(new BABYLON.Vector3(0, -9.81, 0)); // Set gravity
+
+    var soundtrack = new BABYLON.Sound("soundtrack", Assets.musics.soundtrack.Url, scene, null, {
+        loop: true,
+        autoplay: true
+    });
 
     // Parameters: name, position, scene
     const camera = new BABYLON.FollowCamera("FollowCam", new BABYLON.Vector3(100 - 10, 100), scene);
@@ -105,7 +119,7 @@ const createScene = async function () {
     waterMesh.material = water;
 
     let [playerScene, platformScene, hexagonScene] = await Promise.all([
-        BABYLON.SceneLoader.ImportMeshAsync("", Assets.models.player.Url, "player1.glb", scene),
+        BABYLON.SceneLoader.ImportMeshAsync("", Assets.models.player.Url, "player.glb", scene),
         BABYLON.SceneLoader.ImportMeshAsync("", Assets.models.platform.Url, "platform.glb", scene),
         BABYLON.SceneLoader.ImportMeshAsync("", Assets.models.hexagon.Url, "hexagon.glb", scene)
     ])
@@ -147,7 +161,7 @@ const createScene = async function () {
             var boundingInfo = exagons[j].getBoundingInfo();
             var renderingPosition = boundingInfo.boundingBox.centerWorld;
             var hexagonCollisionBoxDimensions = new BABYLON.Vector3(2.0, 0.5, 1.75);
-            var hexagonCollisionBox = BABYLON.MeshBuilder.CreateBox("hexagon" + i + "CollisionBox_" + j, { width: hexagonCollisionBoxDimensions.x, height: hexagonCollisionBoxDimensions.y, depth: hexagonCollisionBoxDimensions.z }, scene);
+            var hexagonCollisionBox = BABYLON.MeshBuilder.CreateBox("platform" + i + "CollisionBox_" + j, { width: hexagonCollisionBoxDimensions.x, height: hexagonCollisionBoxDimensions.y, depth: hexagonCollisionBoxDimensions.z }, scene);
             hexagonCollisionBox.position = renderingPosition;
 
             hexagonCollisionBox.isVisible = false;
@@ -192,6 +206,10 @@ const createScene = async function () {
 
     // Set the visibility of the collision boxes to false
     playerCollisionBox.isVisible = false;
+
+
+    // Create physics impostors for the player and hexagons
+    var playerImpostor = new BABYLON.PhysicsImpostor(player, BABYLON.PhysicsImpostor.BoxImpostor, { mass: 0, restitution: 0, friction: 0.5 }, scene);
 
     // Register a collision function for the player and hexagon collision boxes
     scene.registerBeforeRender(function () {
