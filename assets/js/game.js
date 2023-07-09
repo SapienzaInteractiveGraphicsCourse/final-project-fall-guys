@@ -1,3 +1,4 @@
+//ALL STATIC URLS FOR ASSETS
 const Assets = {
     textures: {
         carpet: {
@@ -31,16 +32,19 @@ const Assets = {
     }
 };
 
+//FUNCTION FOR DYPLAY LOADING SCREEN
 BABYLON.DefaultLoadingScreen.prototype.displayLoadingUI = function () {
     return;
 };
 
+//FUNCTION FOR HIDE LOADING SCREEN
 BABYLON.DefaultLoadingScreen.prototype.hideLoadingUI = function () {
     document.getElementById("spinner").style.display = "none";
     console.log("Scene is now loaded");
 }
 
-var startRenderLoop = function (engine, canvas) {
+
+var startRenderLoop = function (engine) {
     engine.runRenderLoop(function () {
         if (sceneToRender && sceneToRender.activeCamera) {
             move_player();
@@ -52,49 +56,159 @@ var startRenderLoop = function (engine, canvas) {
 var createDefaultEngine = function () {
     return new BABYLON.Engine(canvas, true, {
         preserveDrawingBuffer: true,
-        stencil: true,
-        disableWebGL2Support: false
+        stencil: true
     });
 };
 
-//CONFIGURATION
+//GENERAL CONFIGURATION
 const canvas = document.getElementById("renderCanvas");
-let player = null;
-let hexagonsMap = [];
 var BabylonEngine = null;
 var sceneToRender = null;
 
-var cubes = [];
-const keyStatus = { 87: false, 65: false, 83: false, 68: false };
-var movementAmount = 0.1; // Adjust the movement speed as needed
-
+//MESHES
+let player = null;
+let hexagon = null;
 var platform = null;
 
+
+//STORE TUPLES OF HEXAGONS WITH HIS COLLIDE BOX
+let hexagonsMap = [];
+
+//STORING KEY PRESSED
+const keyStatus = { 87: false, 65: false, 83: false, 68: false };
+
+//SPEED OF MOVEMENT
+var movementAmount = 0.1; // Adjust the movement speed as needed
+
+
+
+//PLAYER STATIC DIMENSION OF COLLIDE BOX
+var playerCollisionBoxDimensions = new BABYLON.Vector3(0.6, 0.3, 0.4);
+var playerCollisionBoxPosition = new BABYLON.Vector3(0.63, 0.2, 1.6);
+
+//START POSITION OF PLAYER
+var targetPosition = new BABYLON.Vector3(-15, 150, -15);
+
+//STATIC DIMENSION OF HEXAGON COLLIDE BOX
+var hexagonCollisionBoxDimensions = new BABYLON.Vector3(2.0, 0.5, 1.75);
+
+//LISTENER FOR MIVEMENTS
+configure_movement_listeners();
+
 const createScene = async function () {
-    configure_movement_listeners();
     BabylonEngine.displayLoadingUI();
+
     // Creates a basic Babylon Scene object
     const scene = new BABYLON.Scene(BabylonEngine);
-    scene.enablePhysics(new BABYLON.Vector3(0, -9.81, 0)); // Set gravity
 
+    //MUSIC IN BACKGROUND
     var soundtrack = new BABYLON.Sound("soundtrack", Assets.musics.soundtrack.Url, scene, null, {
         loop: true,
         autoplay: true
     });
 
-    // Parameters: name, position, scene
-    const camera = new BABYLON.FollowCamera("FollowCam", new BABYLON.Vector3(100 - 10, 100), scene);
-    camera.heightOffset = 2;
-    camera.rotationOffset = 0;
-    camera.cameraAcceleration = .1;
-    camera.maxCameraSpeed = 1;
-    camera.attachControl(canvas, true);
+    //CAMERA CONFIGURATION
+    const camera = configure_camera(scene);
 
-
+    //LIGHT CONFIGRATION
     var light = new BABYLON.HemisphericLight("light", new BABYLON.Vector3(0, 1, 0), scene);
 
     //  SKYBOX
     var skybox = BABYLON.Mesh.CreateBox("skyBox", 5000.0, scene);
+    var skyboxMaterial = configure_skybox_material(scene, skybox);
+
+    // Water
+    var waterMesh = BABYLON.Mesh.CreateGround("waterMesh", 2048, 2048, 16, scene, false);
+    var water = configure_water_material(scene, skybox, waterMesh);
+
+    //IMPORTING OF THE MESHES
+    let [playerScene, platformScene, hexagonScene] = await Promise.all([
+        BABYLON.SceneLoader.ImportMeshAsync("", Assets.models.player.Url, "player.glb", scene),
+        BABYLON.SceneLoader.ImportMeshAsync("", Assets.models.platform.Url, "platform.glb", scene),
+        BABYLON.SceneLoader.ImportMeshAsync("", Assets.models.hexagon.Url, "hexagon.glb", scene)
+    ])
+
+
+    platform = platformScene["meshes"][0];
+    var exagons = platform._children;
+
+    //CREATING HEXAGONS AND COLLIDING BOXING FOR EACH
+    for (var i = 0; i < exagons.length; i++) {
+        exagons[i].material = generate_material_with_random_color(scene, "Hexagon_" + i + "_platform_0");
+        create_collision_box(exagons[i], scene, "HexagonCollisionBox_" + i + "_platform_0");
+    };
+
+    platform.position.y += 100; // Move forward along the z-axis
+
+    //CREATE CLONE OF PLATFORM
+    for (var i = 1; i < 5; i++) {
+
+        var clonedPlatform = platform.clone("Cloned_Platform_" + i);
+        var clonedExagons = clonedPlatform._children;
+
+        //CREATING HEXAGONS AND COLLIDING BOXING FOR EACH
+        for (var j = 0; j < clonedExagons.length; j++) {
+            clonedExagons[j].material = generate_material_with_random_color(scene, "Hexagon_" + j + "_platform_" + i);
+            create_collision_box(clonedExagons[j], scene, "HexagonCollisionBox_" + j + "_platform_" + i);
+        }
+
+        clonedPlatform.position.y += 10 * i;
+    }
+
+    // Detach the meshes from their parent nodes
+    hexagon = hexagonScene["meshes"][0]._children[0];
+    hexagon.material = generate_material_with_random_color(scene, "Hexagon");
+    hexagon.parent = null;
+
+    // Set the position of the hexagon and player to the same vector
+    hexagon.position.copyFrom(targetPosition);
+
+    player = playerScene["meshes"][0];
+    player.position.copyFrom(targetPosition);
+    player.position.y += 0.14;
+    camera.lockedTarget = player;
+
+    // Create custom collision boxes based on the defined dimensions and positions
+    var playerCollisionBox = BABYLON.MeshBuilder.CreateBox("playerCollisionBox", { width: playerCollisionBoxDimensions.x, height: playerCollisionBoxDimensions.y, depth: playerCollisionBoxDimensions.z }, scene);
+    playerCollisionBox.parent = player;
+    playerCollisionBox.position.copyFrom(playerCollisionBoxPosition);
+
+    // Set the visibility of the collision boxes to false
+    playerCollisionBox.isVisible = false;
+
+    // Register a collision function for the player and hexagon collision boxes
+    scene.registerAfterRender(function () {
+
+        for (var i = 0; i < hexagonsMap.length; i++) {
+            var hexagonBox = hexagonsMap[i][1];
+
+            // Perform intersection check between player mesh and hexagon mesh
+            if (playerCollisionBox.intersectsMesh(hexagonBox, false)) {
+                // Collision between player and hexagon detected
+                hexagonsMap[i][0].dispose();
+                hexagonBox.dispose();
+            }
+        }
+    });
+
+    BabylonEngine.hideLoadingUI();
+
+    return scene;
+};
+
+
+//GENERATE A MATERIAL FOR HEXAGON WITH RANDOM COLOR
+function generate_material_with_random_color(scene, name) {
+    var mat = new BABYLON.StandardMaterial(name, scene);
+    mat.diffuseColor = new BABYLON.Color3(1, 0.5, 0);
+    mat.specularColor = new BABYLON.Color3(0.5, 0.6, 0.87);
+    mat.emissiveColor = new BABYLON.Color3.FromHexString(generateRandomColor()).toLinearSpace();
+    mat.ambientColor = new BABYLON.Color3(0.23, 0.98, 0.53);
+    return mat;
+}
+
+//SKYBOX CONFIGURATION
+function configure_skybox_material(scene, skybox) {
     var skyboxMaterial = new BABYLON.StandardMaterial("skyBox", scene);
     skyboxMaterial.backFaceCulling = false;
     skyboxMaterial.reflectionTexture = new BABYLON.CubeTexture(Assets.textures.sky.Url, scene);
@@ -103,9 +217,11 @@ const createScene = async function () {
     skyboxMaterial.specularColor = new BABYLON.Color3(0, 0, 0);
     skyboxMaterial.disableLighting = true;
     skybox.material = skyboxMaterial;
+    return skyboxMaterial;
+}
 
-    // Water
-    var waterMesh = BABYLON.Mesh.CreateGround("waterMesh", 2048, 2048, 16, scene, false);
+//WATER CONFIGURATION
+function configure_water_material(scene, skybox, waterMesh) {
     var water = new BABYLON.WaterMaterial("water", scene, new BABYLON.Vector2(512, 512));
     water.backFaceCulling = true;
     water.bumpTexture = new BABYLON.Texture(Assets.textures.water.Url, scene);
@@ -117,121 +233,21 @@ const createScene = async function () {
     water.colorBlendFactor = 0.0;
     water.addToRenderList(skybox);
     waterMesh.material = water;
+    return water;
+}
 
-    let [playerScene, platformScene, hexagonScene] = await Promise.all([
-        BABYLON.SceneLoader.ImportMeshAsync("", Assets.models.player.Url, "player.glb", scene),
-        BABYLON.SceneLoader.ImportMeshAsync("", Assets.models.platform.Url, "platform.glb", scene),
-        BABYLON.SceneLoader.ImportMeshAsync("", Assets.models.hexagon.Url, "hexagon.glb", scene)
-    ])
+//HEXAGON COLLISION BOX
+function create_collision_box(hexagon, scene, name) {
+    var boundingInfo = hexagon.getBoundingInfo();
+    var renderingPosition = boundingInfo.boundingBox.centerWorld;
+    var hexagonCollisionBox = BABYLON.MeshBuilder.CreateBox(name, { width: hexagonCollisionBoxDimensions.x, height: hexagonCollisionBoxDimensions.y, depth: hexagonCollisionBoxDimensions.z }, scene);
+    hexagonCollisionBox.position = renderingPosition;
 
-    var platform = platformScene["meshes"][0];
+    hexagonCollisionBox.isVisible = false;
+    hexagonsMap.push([hexagon, hexagonCollisionBox])
+}
 
-    var exagons = platform._children;
-    for (var i = 0; i < exagons.length; i++) {
-        var mat = new BABYLON.StandardMaterial("Mat", scene);
-        mat.diffuseColor = new BABYLON.Color3(1, 0.5, 0);
-        mat.specularColor = new BABYLON.Color3(0.5, 0.6, 0.87);
-        mat.emissiveColor = new BABYLON.Color3.FromHexString(generateRandomColor()).toLinearSpace();
-        mat.ambientColor = new BABYLON.Color3(0.23, 0.98, 0.53);
-        exagons[i].material = mat;
-
-        var boundingInfo = exagons[i].getBoundingInfo();
-        var renderingPosition = boundingInfo.boundingBox.centerWorld;
-        var hexagonCollisionBoxDimensions = new BABYLON.Vector3(2.0, 0.5, 1.75);
-        var hexagonCollisionBox = BABYLON.MeshBuilder.CreateBox("hexagonCollisionBox_" + i, { width: hexagonCollisionBoxDimensions.x, height: hexagonCollisionBoxDimensions.y, depth: hexagonCollisionBoxDimensions.z }, scene);
-        hexagonCollisionBox.position = renderingPosition;
-
-        hexagonCollisionBox.isVisible = false;
-        hexagonsMap.push([exagons[i], hexagonCollisionBox])
-    };
-    platform.position.y += 100; // Move forward along the z-axis
-
-    // Create clones of the mesh
-    for (var i = 1; i < 5; i++) {
-        var clonedPlatform = platform.clone("Cloned_Platform_" + i);
-        var exagons = clonedPlatform._children;
-        for (var j = 0; j < exagons.length; j++) {
-            var mat = new BABYLON.StandardMaterial("Mat", scene);
-            mat.diffuseColor = new BABYLON.Color3(1, 0.5, 0);
-            mat.specularColor = new BABYLON.Color3(0.5, 0.6, 0.87);
-            mat.emissiveColor = new BABYLON.Color3.FromHexString(generateRandomColor()).toLinearSpace();
-            mat.ambientColor = new BABYLON.Color3(0.23, 0.98, 0.53);
-            exagons[j].material = mat;
-
-            var boundingInfo = exagons[j].getBoundingInfo();
-            var renderingPosition = boundingInfo.boundingBox.centerWorld;
-            var hexagonCollisionBoxDimensions = new BABYLON.Vector3(2.0, 0.5, 1.75);
-            var hexagonCollisionBox = BABYLON.MeshBuilder.CreateBox("platform" + i + "CollisionBox_" + j, { width: hexagonCollisionBoxDimensions.x, height: hexagonCollisionBoxDimensions.y, depth: hexagonCollisionBoxDimensions.z }, scene);
-            hexagonCollisionBox.position = renderingPosition;
-
-            hexagonCollisionBox.isVisible = false;
-            hexagonsMap.push([exagons[j], hexagonCollisionBox])
-        }
-        clonedPlatform.position.y += 10 * i;
-
-    }
-
-    var hexagon = hexagonScene["meshes"][0]._children[0];
-
-    player = playerScene["meshes"][0];
-
-
-    // Detach the meshes from their parent nodes
-    hexagon.parent = null;
-
-    // Set the position of the hexagon and player to the same vector
-    var targetPosition = new BABYLON.Vector3(-15, 150, -15);
-    hexagon.position.copyFrom(targetPosition);
-    player.position.copyFrom(targetPosition);
-    player.position.y += 0.14;
-    camera.lockedTarget = player;
-
-
-    var mat1 = new BABYLON.StandardMaterial("Mat1", scene);
-    mat1.diffuseColor = new BABYLON.Color3(1, 0.5, 0);
-    mat1.specularColor = new BABYLON.Color3(0.5, 0.6, 0.87);
-    mat1.emissiveColor = new BABYLON.Color3.FromHexString(generateRandomColor()).toLinearSpace();
-    mat1.ambientColor = new BABYLON.Color3(0.23, 0.98, 0.53);
-    hexagon.material = mat1;
-
-
-    // Define custom dimensions and positions for the collision boxes
-    var playerCollisionBoxDimensions = new BABYLON.Vector3(0.65, 0.3, 0.52);
-    var playerCollisionBoxPosition = new BABYLON.Vector3(0.7, 0.2, 1.5);
-
-    // Create custom collision boxes based on the defined dimensions and positions
-    var playerCollisionBox = BABYLON.MeshBuilder.CreateBox("playerCollisionBox", { width: playerCollisionBoxDimensions.x, height: playerCollisionBoxDimensions.y, depth: playerCollisionBoxDimensions.z }, scene);
-    playerCollisionBox.parent = player;
-    playerCollisionBox.position.copyFrom(playerCollisionBoxPosition);
-
-    // Set the visibility of the collision boxes to false
-    playerCollisionBox.isVisible = false;
-
-
-    // Create physics impostors for the player and hexagons
-    var playerImpostor = new BABYLON.PhysicsImpostor(player, BABYLON.PhysicsImpostor.BoxImpostor, { mass: 0, restitution: 0, friction: 0.5 }, scene);
-
-    // Register a collision function for the player and hexagon collision boxes
-    scene.registerBeforeRender(function () {
-
-        for (var i = 0; i < hexagonsMap.length; i++) {
-            var hexagonBox = hexagonsMap[i][1];
-
-            // Perform intersection check between player mesh and hexagon mesh
-            if (player.intersectsMesh(hexagonBox, true)) {
-                // Collision between player and hexagon detected
-                console.log("Collision between player and hexagon", i);
-                // Perform desired actions when collision occurs
-                // ...
-            }
-        }
-    });
-
-    BabylonEngine.hideLoadingUI();
-
-    return scene;
-};
-
+//GENERTE RNDOM HEXADECIMAL COLOR
 function generateRandomColor() {
     let maxVal = 0xFFFFFF; // 16777215
     let randomNumber = Math.random() * maxVal;
@@ -241,6 +257,17 @@ function generateRandomColor() {
     return `#${randColor.toUpperCase()}`
 }
 
+//CONFIGURATION OF THE CAMERA
+function configure_camera(scene) {
+    // Parameters: name, position, scene
+    let camera = new BABYLON.FollowCamera("FollowCam", new BABYLON.Vector3(100 - 10, 100), scene);
+    camera.heightOffset = 2;
+    camera.rotationOffset = 0;
+    camera.cameraAcceleration = .1;
+    camera.maxCameraSpeed = 1;
+    camera.attachControl(canvas, true);
+    return camera;
+}
 
 window.initFunction = async function () {
 
@@ -255,7 +282,7 @@ window.initFunction = async function () {
 
     window.BabylonEngine = await asyncEngineCreation();
     if (!BabylonEngine) throw 'engine should not be null.';
-    startRenderLoop(BabylonEngine, canvas);
+    startRenderLoop(BabylonEngine);
     window.scene = await createScene();
 };
 initFunction().then(() => {
@@ -307,7 +334,11 @@ function move_player() {
     }
 
     if (keyStatus[78]) {
-        // 'D' key or right arrow key
+        // 'N' key or right arrow key
         player.position.y -= movementAmount;
+    }
+    if (keyStatus[85]) {
+        // 'U' key or right arrow key
+        player.position.y += movementAmount;
     }
 }
