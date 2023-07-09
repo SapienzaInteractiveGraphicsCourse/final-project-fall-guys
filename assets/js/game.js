@@ -28,6 +28,9 @@ const Assets = {
         },
         endgame: {
             Url: "assets/static/sounds/endgame.mp3"
+        },
+        startgame: {
+            Url: "assets/static/sounds/startgame.mp3"
         }
     }
 };
@@ -191,7 +194,44 @@ const createScene = async function () {
         }
     });
 
+
+
     BabylonEngine.hideLoadingUI();
+
+    var advancedTexture = BABYLON.GUI.AdvancedDynamicTexture.CreateFullscreenUI("UI");
+
+    var panel = new BABYLON.GUI.StackPanel();
+    advancedTexture.addControl(panel);
+
+    var textblock = new BABYLON.GUI.TextBlock("Countdown", "5");
+    textblock.width = 1.0;
+    textblock.height = "300px";
+    textblock.color = "white";
+    textblock.fontFamily = "Comic Sans MS"; // Use the desired font family
+    textblock.outlineColor = "#9a84be"; // Set the outline color
+    textblock.outlineWidth = 30; // Set the outline width
+    textblock.fontSize = 80;
+    textblock.fontSize = 300;
+    panel.addControl(textblock);
+
+    var countdown = 5; // Initial countdown value
+    var countdownMusic = new BABYLON.Sound("countdownMusic", Assets.musics.startgame.Url, scene, null, {
+        loop: false,
+        autoplay: true
+    });
+    var countdownInterval = setInterval(function () {
+        countdown--;
+        if (countdown > 0) {
+            textblock.text = countdown.toString();
+        } else {
+            clearInterval(countdownInterval);
+            textblock.text = "START!";
+            setTimeout(function () {
+                panel.isVisible = false; // Hide the panel
+                // Start the game logic or transition to the main gameplay scene
+            }, 2000); // Wait for 2 seconds before starting the game
+        }
+    }, 1000); // Update the countdown every second
 
     return scene;
 };
