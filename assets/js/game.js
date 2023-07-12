@@ -68,11 +68,14 @@ const canvas = document.getElementById("renderCanvas");
 var BabylonEngine = null;
 var sceneToRender = null;
 
+//PHYSICS SETTINGS
+const physicsPlugin = new BABYLON.CannonJSPlugin(); // Use the Cannon.js physics engine
+
 //MESHES
 let player = null;
 let hexagon = null;
 var platform = null;
-
+var loaded = false;
 
 //STORE TUPLES OF HEXAGONS WITH HIS COLLIDE BOX
 let hexagonsMap = [];
@@ -103,6 +106,9 @@ const createScene = async function () {
 
     // Creates a basic Babylon Scene object
     const scene = new BABYLON.Scene(BabylonEngine);
+
+    //ENABLE PHYSICS
+    scene.enablePhysics(new BABYLON.Vector3(0, -9.81, 0), physicsPlugin); // Enable physics with gravity 
 
     //MUSIC IN BACKGROUND
     var soundtrack = new BABYLON.Sound("soundtrack", Assets.musics.soundtrack.Url, scene, null, {
@@ -180,19 +186,28 @@ const createScene = async function () {
     playerCollisionBox.isVisible = false;
 
     // Register a collision function for the player and hexagon collision boxes
-    scene.registerAfterRender(function () {
+    scene.registerBeforeRender(function () {
+        if (panel.isVisible) return;
+        var playerVelocity = player.physicsImpostor.getLinearVelocity(); // Get the player's velocity
+        var isFalling = false; // Check if the player is falling
 
         for (var i = 0; i < hexagonsMap.length; i++) {
+
             var hexagonBox = hexagonsMap[i][1];
 
             // Perform intersection check between player mesh and hexagon mesh
             if (playerCollisionBox.intersectsMesh(hexagonBox, false)) {
                 // Collision between player and hexagon detected
-                hexagonsMap[i][0].dispose();
-                hexagonBox.dispose();
+                // Player is falling, stop the movement
+                // Disable gravity temporarily to prevent falling again
+                player.physicsImpostor.mass = 0; // 
+                player.physicsImpostor.setLinearVelocity(new BABYLON.Vector3(0, 0, 0));
+
+                break; // Exit the loop, no need to check other hexagons
             }
         }
-    });
+    }
+    );
 
 
 
@@ -203,15 +218,7 @@ const createScene = async function () {
     var panel = new BABYLON.GUI.StackPanel();
     advancedTexture.addControl(panel);
 
-    var textblock = new BABYLON.GUI.TextBlock("Countdown", "5");
-    textblock.width = 1.0;
-    textblock.height = "300px";
-    textblock.color = "white";
-    textblock.fontFamily = "Comic Sans MS"; // Use the desired font family
-    textblock.outlineColor = "#9a84be"; // Set the outline color
-    textblock.outlineWidth = 30; // Set the outline width
-    textblock.fontSize = 80;
-    textblock.fontSize = 300;
+    var textblock = create_start_text();
     panel.addControl(textblock);
 
     var countdown = 5; // Initial countdown value
@@ -219,6 +226,7 @@ const createScene = async function () {
         loop: false,
         autoplay: true
     });
+
     var countdownInterval = setInterval(function () {
         countdown--;
         if (countdown > 0) {
@@ -226,9 +234,10 @@ const createScene = async function () {
         } else {
             clearInterval(countdownInterval);
             textblock.text = "START!";
+            loaded = true;
             setTimeout(function () {
                 panel.isVisible = false; // Hide the panel
-                // Start the game logic or transition to the main gameplay scene
+                player.physicsImpostor = new BABYLON.PhysicsImpostor(player, BABYLON.PhysicsImpostor.BoxImpostor, { mass: 1, restitution: 0.9 }, scene);
             }, 2000); // Wait for 2 seconds before starting the game
         }
     }, 1000); // Update the countdown every second
@@ -260,6 +269,19 @@ function configure_skybox_material(scene, skybox) {
     return skyboxMaterial;
 }
 
+function create_start_text() {
+    textblock = new BABYLON.GUI.TextBlock("Countdown", "5");
+    textblock.width = 1.0;
+    textblock.height = "300px";
+    textblock.color = "white";
+    textblock.fontFamily = "Comic Sans MS"; // Use the desired font family
+    textblock.outlineColor = "#9a84be"; // Set the outline color
+    textblock.outlineWidth = 30; // Set the outline width
+    textblock.fontSize = 80;
+    textblock.fontSize = 300;
+    return textblock;
+}
+
 //WATER CONFIGURATION
 function configure_water_material(scene, skybox, waterMesh) {
     var water = new BABYLON.WaterMaterial("water", scene, new BABYLON.Vector2(512, 512));
@@ -284,7 +306,10 @@ function create_collision_box(hexagon, scene, name) {
     hexagonCollisionBox.position = renderingPosition;
 
     hexagonCollisionBox.isVisible = false;
+
     hexagonsMap.push([hexagon, hexagonCollisionBox])
+
+    hexagon.physicsImpostor = new BABYLON.PhysicsImpostor(hexagon, BABYLON.PhysicsImpostor.BoxImpostor, { mass: 0, friction: 0.5, restitution: 0.7 }, scene);
 }
 
 //GENERTE RNDOM HEXADECIMAL COLOR
