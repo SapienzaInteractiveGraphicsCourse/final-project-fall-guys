@@ -70,6 +70,7 @@ var sceneToRender = null;
 
 //PHYSICS SETTINGS
 const physicsPlugin = new BABYLON.CannonJSPlugin(); // Use the Cannon.js physics engine
+const g = 9.81;
 
 //MESHES
 let player = null;
@@ -89,7 +90,7 @@ var movementAmount = 0.1; // Adjust the movement speed as needed
 
 
 //PLAYER STATIC DIMENSION OF COLLIDE BOX
-var playerCollisionBoxDimensions = new BABYLON.Vector3(0.6, 0.3, 0.4);
+var playerCollisionBoxDimensions = new BABYLON.Vector3(0.6, 0.8, 0.4);
 var playerCollisionBoxPosition = new BABYLON.Vector3(0.63, 0.2, 1.6);
 
 //START POSITION OF PLAYER
@@ -108,7 +109,7 @@ const createScene = async function () {
     const scene = new BABYLON.Scene(BabylonEngine);
 
     //ENABLE PHYSICS
-    scene.enablePhysics(new BABYLON.Vector3(0, -9.81, 0), physicsPlugin); // Enable physics with gravity 
+    scene.enablePhysics(new BABYLON.Vector3(0, -g, 0), physicsPlugin); // Enable physics with gravity 
 
     //MUSIC IN BACKGROUND
     var soundtrack = new BABYLON.Sound("soundtrack", Assets.musics.soundtrack.Url, scene, null, {
@@ -147,7 +148,7 @@ const createScene = async function () {
         create_collision_box(exagons[i], scene, "HexagonCollisionBox_" + i + "_platform_0");
     };
 
-    platform.position.y += 100; // Move forward along the z-axis
+    platform.position.y += 100;
 
     //CREATE CLONE OF PLATFORM
     for (var i = 1; i < 5; i++) {
@@ -162,12 +163,19 @@ const createScene = async function () {
         }
 
         clonedPlatform.position.y += 10 * i;
+
+        for (var j = 0; j < clonedExagons.length; j++) {
+            var hexagonCollisionBox = hexagonsMap[j][1];
+            hexagonCollisionBox.position.copyFrom(clonedExagons[j].position);
+        }
     }
 
     // Detach the meshes from their parent nodes
     hexagon = hexagonScene["meshes"][0]._children[0];
     hexagon.material = generate_material_with_random_color(scene, "Hexagon");
     hexagon.parent = null;
+
+    // Create the hexagon mesh
 
     // Set the position of the hexagon and player to the same vector
     hexagon.position.copyFrom(targetPosition);
@@ -188,26 +196,42 @@ const createScene = async function () {
     // Register a collision function for the player and hexagon collision boxes
     scene.registerBeforeRender(function () {
         if (panel.isVisible) return;
-        var playerVelocity = player.physicsImpostor.getLinearVelocity(); // Get the player's velocity
-        var isFalling = false; // Check if the player is falling
+
+        //HANDLE END GAME
+        if (player.position.y < 80) {
+            BabylonEngine.stopRenderLoop()
+        }
 
         for (var i = 0; i < hexagonsMap.length; i++) {
 
+            var life = hexagonsMap[i][3];
+            var collided = hexagonsMap[i][2];
             var hexagonBox = hexagonsMap[i][1];
+            var hexagonReal = hexagonsMap[i][0];
 
             // Perform intersection check between player mesh and hexagon mesh
-            if (playerCollisionBox.intersectsMesh(hexagonBox, false)) {
-                // Collision between player and hexagon detected
-                // Player is falling, stop the movement
-                // Disable gravity temporarily to prevent falling again
-                player.physicsImpostor.mass = 0; // 
-                player.physicsImpostor.setLinearVelocity(new BABYLON.Vector3(0, 0, 0));
+            if (!hexagonReal.isDisposed() && playerCollisionBox.intersectsMesh(hexagonBox, true)) {
+                if (!collided) {
+                    hexagonsMap[i][2] = true;
+                    player.physicsImpostor.setLinearVelocity(new BABYLON.Vector3(0, 1, 0));
+                    hexagonReal.position.y -= 0.2;
+                } else {
+                    player.physicsImpostor.setLinearVelocity(new BABYLON.Vector3(0, 1, 0));
+                }
+            }
 
-                break; // Exit the loop, no need to check other hexagons
+            if (collided) {
+                if (life == 0 && hexagonBox != undefined) {
+                    dispose_hexagons(hexagonBox, hexagonReal)
+                } else {
+                    hexagonsMap[i][3] = life - 1;
+                }
             }
         }
     }
     );
+
+
 
 
 
@@ -237,14 +261,45 @@ const createScene = async function () {
             loaded = true;
             setTimeout(function () {
                 panel.isVisible = false; // Hide the panel
-                player.physicsImpostor = new BABYLON.PhysicsImpostor(player, BABYLON.PhysicsImpostor.BoxImpostor, { mass: 1, restitution: 0.9 }, scene);
+                add_physic(scene);
+                startTimer(); // Start the timer after the countdown
             }, 2000); // Wait for 2 seconds before starting the game
         }
     }, 1000); // Update the countdown every second
 
+    var timerPanel = new BABYLON.GUI.StackPanel();
+    timerPanel.verticalAlignment = BABYLON.GUI.Control.VERTICAL_ALIGNMENT_TOP;
+    advancedTexture.addControl(timerPanel);
+
+    var startTime = 0;
+    var timerText = create_time_text();
+    timerPanel.addControl(timerText);
+
+    function startTimer() {
+        startTime = performance.now();
+        updateTimer();
+    }
+
+    function updateTimer() {
+        var elapsedTime = (performance.now() - startTime) / 1000;
+        var minutes = Math.floor(elapsedTime / 60);
+        var seconds = Math.floor(elapsedTime % 60);
+        var timeString = "Time survived: ";
+        if (minutes > 0) {
+            timeString += minutes + " minute" + (minutes > 1 ? "s" : "") + " ";
+        }
+        timeString += seconds + " second" + (seconds > 1 ? "s" : "");
+        timerText.text = timeString;
+        requestAnimationFrame(updateTimer);
+    }
+
     return scene;
 };
 
+function dispose_hexagons(hexagon, hexagonCollisionBox) {
+    hexagon.dispose();
+    hexagonCollisionBox.dispose();
+}
 
 //GENERATE A MATERIAL FOR HEXAGON WITH RANDOM COLOR
 function generate_material_with_random_color(scene, name) {
@@ -270,16 +325,27 @@ function configure_skybox_material(scene, skybox) {
 }
 
 function create_start_text() {
-    textblock = new BABYLON.GUI.TextBlock("Countdown", "5");
+    var textblock = new BABYLON.GUI.TextBlock("Countdown", "5");
     textblock.width = 1.0;
     textblock.height = "300px";
     textblock.color = "white";
     textblock.fontFamily = "Comic Sans MS"; // Use the desired font family
     textblock.outlineColor = "#9a84be"; // Set the outline color
     textblock.outlineWidth = 30; // Set the outline width
-    textblock.fontSize = 80;
     textblock.fontSize = 300;
     return textblock;
+}
+
+function create_time_text() {
+    var timerText = new BABYLON.GUI.TextBlock();
+    timerText.text = "Time survived: 0 seconds";
+    timerText.height = "200px";
+    timerText.color = "white";
+    timerText.fontFamily = "Comic Sans MS"; // Use the desired font family
+    timerText.outlineColor = "#9a84be"; // Set the outline color
+    timerText.outlineWidth = 10; // Set the outline width
+    timerText.fontSize = 50;
+    return timerText;
 }
 
 //WATER CONFIGURATION
@@ -300,16 +366,27 @@ function configure_water_material(scene, skybox, waterMesh) {
 
 //HEXAGON COLLISION BOX
 function create_collision_box(hexagon, scene, name) {
+
     var boundingInfo = hexagon.getBoundingInfo();
     var renderingPosition = boundingInfo.boundingBox.centerWorld;
-    var hexagonCollisionBox = BABYLON.MeshBuilder.CreateBox(name, { width: hexagonCollisionBoxDimensions.x, height: hexagonCollisionBoxDimensions.y, depth: hexagonCollisionBoxDimensions.z }, scene);
-    hexagonCollisionBox.position = renderingPosition;
 
+    var hexagonCollisionBox = BABYLON.MeshBuilder.CreateDisc(name, { radius: 1, tessellation: 6 }, scene);
+    // Apply rotation to make the hexagon perpendicular to the viewer
+    hexagonCollisionBox.rotation.x = Math.PI / 2;
+
+    // Set the position of the collision box to match the hexagon's position
+    hexagonCollisionBox.position = renderingPosition;
+    // Set the visibility of the collision box
     hexagonCollisionBox.isVisible = false;
 
-    hexagonsMap.push([hexagon, hexagonCollisionBox])
 
-    hexagon.physicsImpostor = new BABYLON.PhysicsImpostor(hexagon, BABYLON.PhysicsImpostor.BoxImpostor, { mass: 0, friction: 0.5, restitution: 0.7 }, scene);
+    hexagonsMap.push([hexagon, hexagonCollisionBox, false, 60])
+
+}
+
+function add_physic(scene) {
+    player.physicsImpostor = new BABYLON.PhysicsImpostor(player, BABYLON.PhysicsImpostor.BoxImpostor, { mass: 1, restitution: 0, friction: 0 }, scene);
+    return;
 }
 
 //GENERTE RNDOM HEXADECIMAL COLOR
