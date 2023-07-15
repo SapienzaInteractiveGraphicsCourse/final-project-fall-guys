@@ -15,5 +15,36 @@ body {
   .btn {
     font-size: 50px; /* Increase the font size */
     padding: 15px 30px; /* Increase the button padding */
-    margin-top: 20px; /* Add some margin at the top */
+    margin-top: 20px; 
+    
+    border: solid 4px black;
+    font-family: 'Comic Sans MS';
+    color: white; 
+  }
+
+  .title h1 {
+    font-family: 'Comic Sans MS', cursive; /* Choose a cartoon-style font */
+    font-size: 1.5rem; /* Adjust the font size as needed */
+    color: black; /* Choose a suitable text color */
+    text-shadow: 5px 5px 4px rgba(0, 0, 0, 0.5); /* Add a shadow effect */
+    letter-spacing: 4px; /* Adjust the letter spacing as needed */
+    line-height: 1.2; /* Adjust the line height as needed */
+    text-transform: uppercase; /* Convert the text to uppercase */
+  }
+
+  .title p {
+    font-family: 'Comic Sans MS', cursive; /* Choose a cartoon-style font */
+    font-size: 1rem;  
+    color: black;
+  }
+
+  .title {
+    background-color: #9a84be;
+    text-align: center;
+    border: solid 4px black;
+    width: 100%;
+  }
+
+  .audio {
+    display: none;
   }
