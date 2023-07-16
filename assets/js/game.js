@@ -85,7 +85,8 @@ let hexagonsMap = [];
 const keyStatus = { 87: false, 65: false, 83: false, 68: false };
 
 //SPEED OF MOVEMENT
-var movementAmount = 0.1; // Adjust the movement speed as needed
+var movementAmount = 0.04; // Adjust the movement speed as needed
+var rotationAmount = 0.04; // Adjust the movement speed as needed
 
 //PLAYER STATIC DIMENSION OF COLLIDE BOX
 var playerCollisionBoxDimensions = new BABYLON.Vector3(0.6, 0.8, 0.4);
@@ -99,6 +100,8 @@ var hexagonCollisionBoxDimensions = new BABYLON.Vector3(2.0, 0.5, 1.75);
 
 //LISTENER FOR MIVEMENTS
 configure_movement_listeners();
+
+
 
 const createScene = async function () {
     BabylonEngine.displayLoadingUI();
@@ -215,9 +218,9 @@ const createScene = async function () {
     ]);
     shoulderRight.animations.push(animationShoulderRight);
     shoulderLeft.animations.push(animationShoulderLeft);
-    var animationGroup = new BABYLON.AnimationGroup("rotationAnimationGroup");
-    animationGroup.addTargetedAnimation(animationShoulderRight, shoulderRight);
-    animationGroup.addTargetedAnimation(animationShoulderLeft, shoulderLeft);
+    var animationGroupW = new BABYLON.AnimationGroup("rotationAnimationGroup");
+    animationGroupW.addTargetedAnimation(animationShoulderRight, shoulderRight);
+    animationGroupW.addTargetedAnimation(animationShoulderLeft, shoulderLeft);
 
     // Register a collision function for the player and hexagon collision boxes
     scene.registerBeforeRender(function () {
@@ -256,15 +259,11 @@ const createScene = async function () {
         }
 
         // If W is pressed, start movement of shoulders
-        if (keyStatus[87]) {
-            animationGroup.start();
+        if (keyStatus[87] || keyStatus[83] || keyStatus[65] || keyStatus[68]) {
+            animationGroupW.start();
         }
     }
     );
-
-
-
-
 
     BabylonEngine.hideLoadingUI();
 
@@ -485,25 +484,47 @@ function configure_movement_listeners() {
     });
 }
 
+function rotatePlayer(direction){
+    transformNodes = player._scene.transformNodes
+    chest = transformNodes[3]
+    pelvis = transformNodes[25]
+    torso = transformNodes[36]
+    if(direction == 'right'){
+        chest.rotation.y -= 0.03
+        pelvis.rotation.y -= 0.03
+        torso.rotation.y -= 0.03
+    } else {
+        chest.rotation.y += 0.03
+        pelvis.rotation.y += 0.03
+        torso.rotation.y += 0.03
+    }
+    chest.rotation = chest.rotation.clone()
+    pelvis.rotation = pelvis.rotation.clone()
+    torso.rotation = torso.rotation.clone()
+}
+
+
 function move_player() {
     if (player == null) return;
     if (keyStatus[87]) {
         // 'W' key or up arrow key
-        player.position.z += movementAmount; //
+        player.position.z -= movementAmount;
     }
     if (keyStatus[65]) {
+        rotatePlayer('left')
         // 'A' key or left arrow key
-        player.position.x -= movementAmount;
+        player.position.x += movementAmount;
     }
 
     if (keyStatus[83]) {
         // 'S' key or down arrow key
-        player.position.z -= movementAmount; // Move backward along the z-axis
+        player.position.z += movementAmount;
     }
 
     if (keyStatus[68]) {
         // 'D' key or right arrow key
-        player.position.x += movementAmount;
+        rotatePlayer('right');
+        player.position.x -= movementAmount;
     }
 
     if (keyStatus[78]) {
