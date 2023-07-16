@@ -87,8 +87,6 @@ const keyStatus = { 87: false, 65: false, 83: false, 68: false };
 //SPEED OF MOVEMENT
 var movementAmount = 0.1; // Adjust the movement speed as needed
 
-
-
 //PLAYER STATIC DIMENSION OF COLLIDE BOX
 var playerCollisionBoxDimensions = new BABYLON.Vector3(0.6, 0.8, 0.4);
 var playerCollisionBoxPosition = new BABYLON.Vector3(0.63, 0.2, 1.6);
@@ -193,6 +191,34 @@ const createScene = async function () {
     // Set the visibility of the collision boxes to false
     playerCollisionBox.isVisible = false;
 
+    // Setup keyframes animations
+    playerNodes = playerScene["transformNodes"];
+    shoulderRight = playerNodes[17]
+    shoulderLeft = playerNodes[8]
+    console.log(playerNodes)
+
+    var animationShoulderRight = new BABYLON.Animation("rotationAnimation", "rotation", 30, BABYLON.Animation.ANIMATIONTYPE_VECTOR3, BABYLON.Animation.ANIMATIONLOOPMODE_CONSTANT);
+    animationShoulderRight.setKeys([
+        { frame: 0, value: new BABYLON.Vector3(0, -Math.PI / 2, -Math.PI) },
+        { frame: 5, value: new BABYLON.Vector3(0, -Math.PI / 2, -Math.PI * 140 / 180) },
+        { frame: 10, value: new BABYLON.Vector3(0, -Math.PI / 2, -Math.PI) },
+        { frame: 15, value: new BABYLON.Vector3(0, -Math.PI / 2, -Math.PI * 220 / 180) },
+        { frame: 20, value: new BABYLON.Vector3(0, -Math.PI / 2, -Math.PI) }
+    ]);
+    var animationShoulderLeft = new BABYLON.Animation("rotationAnimation", "rotation", 30, BABYLON.Animation.ANIMATIONTYPE_VECTOR3, BABYLON.Animation.ANIMATIONLOOPMODE_CONSTANT);
+    animationShoulderLeft.setKeys([
+        { frame: 0, value: new BABYLON.Vector3(0, Math.PI / 2, Math.PI) },
+        { frame: 5, value: new BABYLON.Vector3(0, Math.PI / 2, Math.PI * 220 / 180) },
+        { frame: 10, value: new BABYLON.Vector3(0, Math.PI / 2, Math.PI) },
+        { frame: 15, value: new BABYLON.Vector3(0, Math.PI / 2, Math.PI * 140 / 180) },
+        { frame: 20, value: new BABYLON.Vector3(0, Math.PI / 2, Math.PI) }
+    ]);
+    shoulderRight.animations.push(animationShoulderRight);
+    shoulderLeft.animations.push(animationShoulderLeft);
+    var animationGroup = new BABYLON.AnimationGroup("rotationAnimationGroup");
+    animationGroup.addTargetedAnimation(animationShoulderRight, shoulderRight);
+    animationGroup.addTargetedAnimation(animationShoulderLeft, shoulderLeft);
+
     // Register a collision function for the player and hexagon collision boxes
     scene.registerBeforeRender(function () {
         if (panel.isVisible) return;
@@ -227,6 +253,11 @@ const createScene = async function () {
                     hexagonsMap[i][3] = life - 1;
                 }
             }
+        }
+
+        // If W is pressed, start movement of shoulders
+        if (keyStatus[87]) {
+            animationGroup.start();
         }
     }
     );
