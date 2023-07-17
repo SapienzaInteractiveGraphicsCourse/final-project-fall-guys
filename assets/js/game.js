@@ -184,6 +184,8 @@ const createScene = async function () {
     player = playerScene["meshes"][0];
     player.position.copyFrom(targetPosition);
     player.position.y += 0.14;
+    player.position.x += 0.5;
+    player.position.z -= 1.6;
     camera.lockedTarget = player;
 
     // Create custom collision boxes based on the defined dimensions and positions
@@ -198,7 +200,7 @@ const createScene = async function () {
     playerNodes = playerScene["transformNodes"];
     shoulderRight = playerNodes[17]
     shoulderLeft = playerNodes[8]
-    console.log(playerNodes)
+    //console.log(playerNodes)
 
     var animationShoulderRight = new BABYLON.Animation("rotationAnimation", "rotation", 30, BABYLON.Animation.ANIMATIONTYPE_VECTOR3, BABYLON.Animation.ANIMATIONLOOPMODE_CONSTANT);
     animationShoulderRight.setKeys([
@@ -230,7 +232,6 @@ const createScene = async function () {
         if (player.position.y < 80) {
             BabylonEngine.stopRenderLoop()
         }
-
         for (var i = 0; i < hexagonsMap.length; i++) {
 
             var life = hexagonsMap[i][3];
@@ -240,12 +241,13 @@ const createScene = async function () {
 
             // Perform intersection check between player mesh and hexagon mesh
             if (!hexagonReal.isDisposed() && playerCollisionBox.intersectsMesh(hexagonBox, true)) {
+                var currentVelocity = player.physicsImpostor.getLinearVelocity().clone();
+                var scaledVelocity = new BABYLON.Vector3(0, Math.ceil(Math.abs(currentVelocity.y) * 0.5), 0);
+                player.physicsImpostor.setLinearVelocity(scaledVelocity);
+                player.physicsImpostor.setLinearVelocity(new BABYLON.Vector3(0, Math.ceil(Math.abs(currentVelocity.y) * 0.5), 0));
                 if (!collided) {
                     hexagonsMap[i][2] = true;
-                    player.physicsImpostor.setLinearVelocity(new BABYLON.Vector3(0, 1, 0));
-                    hexagonReal.position.y -= 0.2;
-                } else {
-                    player.physicsImpostor.setLinearVelocity(new BABYLON.Vector3(0, 1, 0));
+                    hexagon_pressed(hexagonReal);
                 }
             }
 
@@ -292,6 +294,7 @@ const createScene = async function () {
             setTimeout(function () {
                 panel.isVisible = false; // Hide the panel
                 add_physic(scene);
+                hexagon.dispose();
                 startTimer(); // Start the timer after the countdown
             }, 2000); // Wait for 2 seconds before starting the game
         }
@@ -330,6 +333,53 @@ function dispose_hexagons(hexagon, hexagonCollisionBox) {
     hexagon.dispose();
     hexagonCollisionBox.dispose();
 }
+
+function hexagon_pressed(hexagon) {
+    // Setup keyframes animations
+    var animationHexagon = new BABYLON.Animation("positionAnimation", "position", 30, BABYLON.Animation.ANIMATIONTYPE_VECTOR3, BABYLON.Animation.ANIMATIONLOOPMODE_CONSTANT);
+    var initialPosition = hexagon.position.clone(); // Store the initial position of the hexagon
+
+    // Define the keyframes for the hexagon animation
+    animationHexagon.setKeys([
+        { frame: 0, value: initialPosition },
+        { frame: 15, value: new BABYLON.Vector3(initialPosition.x, initialPosition.y - 0.1, initialPosition.z) }, // Hexagon goes down
+        { frame: 30, value: new BABYLON.Vector3(initialPosition.x, initialPosition.y - 0.2, initialPosition.z) },
+        { frame: 45, value: new BABYLON.Vector3(initialPosition.x, initialPosition.y - 0.1, initialPosition.z) }, // Hexagon goes down
+        { frame: 60, value: initialPosition } // Hexagon returns to initial position
+    ]);
+
+    // Define the keyframes for the color animation
+    var animationColor = new BABYLON.Animation("colorAnimation", "material.diffuseColor", 30, BABYLON.Animation.ANIMATIONTYPE_COLOR3, BABYLON.Animation.ANIMATIONLOOPMODE_CONSTANT);
+    var initialColor = hexagon.material.diffuseColor.clone(); // Store the initial color of the hexagon material
+
+    animationColor.setKeys([
+        { frame: 0, value: initialColor },
+        { frame: 10, value: new BABYLON.Color3(1, 0, 0) }, // Red color throughout the animation
+        { frame: 15, value: initialColor }, // Red color throughout the animation
+        { frame: 20, value: new BABYLON.Color3(1, 0, 0) }, // Red color throughout the animation
+        { frame: 25, value: initialColor }, // Red color throughout the animation
+        { frame: 30, value: new BABYLON.Color3(1, 0, 0) },// Red color throughout the animation
+        { frame: 35, value: initialColor }, // Red color throughout the animation
+        { frame: 40, value: new BABYLON.Color3(1, 0, 0) }, // Red color throughout the animation
+        { frame: 45, value: initialColor },// Red color throughout the animation
+        { frame: 50, value: new BABYLON.Color3(1, 0, 0) },// Red color throughout the animation
+        { frame: 55, value: initialColor },// Red color throughout the animation
+        { frame: 60, value: new BABYLON.Color3(1, 0, 0) }
+    ]);
+
+    // Apply the animations to the hexagon
+    hexagon.animations.push(animationHexagon);
+    hexagon.animations.push(animationColor);
+
+    // Create an animation group and add the animations to it
+    var animationGroupHexagon = new BABYLON.AnimationGroup("hexagonAnimationGroup");
+    animationGroupHexagon.addTargetedAnimation(animationHexagon, hexagon);
+    animationGroupHexagon.addTargetedAnimation(animationColor, hexagon);
+
+    // Start the animation group
+    animationGroupHexagon.start();
+}
+
 
 //GENERATE A MATERIAL FOR HEXAGON WITH RANDOM COLOR
 function generate_material_with_random_color(scene, name) {
@@ -484,12 +534,12 @@ function configure_movement_listeners() {
     });
 }
 
-function rotatePlayer(direction){
+function rotatePlayer(direction) {
     transformNodes = player._scene.transformNodes
     chest = transformNodes[3]
     pelvis = transformNodes[25]
     torso = transformNodes[36]
-    if(direction == 'right'){
+    if (direction == 'right') {
         chest.rotation.y -= 0.03
         pelvis.rotation.y -= 0.03
         torso.rotation.y -= 0.03
