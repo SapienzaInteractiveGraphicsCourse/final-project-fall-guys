@@ -1,0 +1,82 @@
+body{
+    display: flex;
+    background-image: url("../images/settingsBackground.png");
+    background-repeat: no-repeat;
+    background-size: 100%;
+      
+}
+h1{
+    margin-left: 20px;
+    margin-top: 20px;
+    font-family: 'Comic Sans MS';
+    color: black; 
+}
+
+.box {
+    margin-top: 80px;
+      margin-left: 130px;
+      border: 3px solid white;
+      padding: 20px;
+      border-radius: 10px;
+      width: 700px;
+      height: 500px;
+      background-color: #00BBFF;
+      overflow-x: hidden;
+      overflow-y: auto;
+      font-family: 'Comic Sans MS';
+      color: white;
+          
+    }
+
+.settingImage{
+    margin-top: 250px;
+    margin-left: 30px;
+}
+
+.singleOption{
+    text-align: left;
+    margin-left: 20px;
+}
+
+.option1{
+display: flex;
+justify-content: center;
+}
+
+.butt{
+    margin-left: 30px;
+    background-color: transparent;
+    border: none;
+}
+
+.macroLabels{
+    text-align: center;
+    color: black;
+}
+
+.icon{
+font-size: 24px;
+}
+
+.slider{
+    margin-left: 30px;
+    accent-color: black;
+}
+
+.endOptions{
+    text-align: end;
+}
+
+::-webkit-scrollbar {
+    width: 5px;               /* width of the entire scrollbar */
+  }
+  
+::-webkit-scrollbar-track {
+    background: black; 
+    border-radius: 10px;       /* color of the tracking area */
+  }
+  
+::-webkit-scrollbar-thumb {
+    background-color: white;    /* color of the scroll thumb */
+    border-radius: 10px;       /* roundness of the scroll thumb */
+  }

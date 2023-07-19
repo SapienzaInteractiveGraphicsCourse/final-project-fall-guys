@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css"
+    integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
+    crossorigin="anonymous"
+    />
+    <link rel="stylesheet" 
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"
+    />
+    <link
+      rel="shortcut icon"
+      href="assets/static/favicon.ico"
+      type="image/x-icon"
+    />
+    <link rel="icon" href="assets/static/favicon.ico" type="image/x-icon" />
+    <link rel="stylesheet" type="text/css" href="assets/css/options.css" />
+    <title>Fall Guys</title>
+  </head>
+  <body>
+    <h1>Game Settings</h1>
+        <div class="settingImage">
+          <img src="assets/images/gears.png" alt="Settings">  
+        </div>
+        <div class="box">
+              <div class="macroLabels">
+                <h2>DIFFICULTY</h2>
+              </div>
+              <div class="option1">
+                <h3 class = "singleOption">Select difficulty option: </h3>
+                <button class="butt"><i class="fa fa-chevron-left icon" onclick = "decreaseDifficulty()"></i></button>
+                <h3 class="butt" id="difficulty">Normal</h3>
+                <button class="butt"><i class="fa fa-chevron-right icon" onclick = "increaseDifficulty()"></i></button>
+              </div>
+              <br>
+              <div class="macroLabels">
+                <h2>MAP</h2>
+              </div>
+              <div class="option1">
+                <h3 class = "singleOption">Select your map: </h3>
+                <button class="butt"><i class="fa fa-chevron-left icon" onclick="decreaseMap()"></i></button>
+                <h3 class="butt" id="maps">Map-1</h3>
+                <button class="butt"><i class="fa fa-chevron-right icon" onclick="increaseMap()"></i></button>
+              </div>
+              <br>
+              <div class="macroLabels">
+                <h2>MOTION BLUR</h2>
+              </div>
+              <div class="option1">
+                <h3 class = "singleOption">Enable Motion Blur: </h3>
+                <button class="butt"><i class="fa fa-chevron-left icon" onclick="changeMotionOn()"></i></button>
+                <h3 class="butt" id="motionBlur">Off</h3>
+                <button class="butt"><i class="fa fa-chevron-right icon" onclick="changeMotion()"></i></button>
+              </div>
+              <br>
+              <div class="macroLabels">
+                <h2>SHADOW</h2>
+              </div>
+              <div class="option1">
+                <h3 class = "singleOption">Select shadow option: </h3>
+                <button class="butt"><i class="fa fa-chevron-left icon" onclick="decreaseShadow()"></i></button>
+                <h3 class="butt" id="shadow">Medium</h3>
+                <button class="butt"><i class="fa fa-chevron-right icon" onclick="increaseShadow()"></i></button>
+              </div>
+              <br>
+              <div class="macroLabels">
+                <h2>VOLUME</h2>
+              </div>
+              <div class="option1">
+                <h3 class = "singleOption">Choose your prefered volume: </h3>
+                <input type="range" name="volume" id="volume" class="slider" min="0" max="100" step="1">
+              </div>
+              
+              <br>
+              
+              <div class="endOptions">
+                <button class="btn btn-dark" onclick="saveSettings()">Save</button>
+                <button class="btn btn-dark" onclick="resetSettings()">Reset</button>
+                <button class="btn btn-dark" onclick="exitGame()">Exit</button>
+              </div>
+             
+        </div>
+        
+              
+    <script src="assets/js/options.js"></script>
+  </body>
+</html>
