@@ -69,7 +69,7 @@ var BabylonEngine = null;
 var sceneToRender = null;
 
 //PHYSICS SETTINGS
-const physicsPlugin = new BABYLON.CannonJSPlugin(); // Use the Cannon.js physics engine
+const physicsPlugin = new BABYLON.OimoJSPlugin();// Use the Cannon.js physics engine
 const g = 9.81;
 
 //MESHES
@@ -108,6 +108,17 @@ const createScene = async function () {
 
     // Creates a basic Babylon Scene object
     const scene = new BABYLON.Scene(BabylonEngine);
+
+    /* var scene2 = new BABYLON.Scene(BabylonEngine);
+ 
+     /* var scenes = [];
+       scenes.push(scene);
+       scenes.push(scene2);
+   
+       var currentScene = scene;
+ 
+ 
+     var camera2 = new BABYLON.ArcRotateCamera("camera2", 0, 0, 0, new BABYLON.Vector3(0, 0, -0), scene2);*/
 
     //ENABLE PHYSICS
     scene.enablePhysics(new BABYLON.Vector3(0, -g, 0), physicsPlugin); // Enable physics with gravity 
@@ -224,14 +235,33 @@ const createScene = async function () {
     animationGroupW.addTargetedAnimation(animationShoulderRight, shoulderRight);
     animationGroupW.addTargetedAnimation(animationShoulderLeft, shoulderLeft);
 
+
     // Register a collision function for the player and hexagon collision boxes
     scene.registerBeforeRender(function () {
         if (panel.isVisible) return;
 
         //HANDLE END GAME
-        if (player.position.y < 80) {
-            BabylonEngine.stopRenderLoop()
-        }
+        /* if (player.position.y < 80) {
+             BabylonEngine.stopRenderLoop();
+             currentScene = scene2;
+             cancelAnimationFrame(updateTimer);
+ 
+             var elapsedTime = (performance.now() - startTime) / 1000;
+             var minutes = Math.floor(elapsedTime / 60);
+             var seconds = Math.floor(elapsedTime % 60);
+             var timeString = ""
+             if (minutes > 0) {
+                 timeString += minutes + " minute" + (minutes > 1 ? "s" : "") + " ";
+             }
+             timeString += seconds + " second" + (seconds > 1 ? "s" : "");
+             localStorage.setItem("record_one_player", timeString);
+             timerText.text = "Your record is: " + timeString;
+             BabylonEngine.runRenderLoop(function () {
+ 
+                 currentScene.render();
+ 
+             });
+         }*/
         for (var i = 0; i < hexagonsMap.length; i++) {
 
             var life = hexagonsMap[i][3];
@@ -242,9 +272,7 @@ const createScene = async function () {
             // Perform intersection check between player mesh and hexagon mesh
             if (!hexagonReal.isDisposed() && playerCollisionBox.intersectsMesh(hexagonBox, true)) {
                 var currentVelocity = player.physicsImpostor.getLinearVelocity().clone();
-                var scaledVelocity = new BABYLON.Vector3(0, Math.ceil(Math.abs(currentVelocity.y) * 0.5), 0);
-                player.physicsImpostor.setLinearVelocity(scaledVelocity);
-                player.physicsImpostor.setLinearVelocity(new BABYLON.Vector3(0, Math.ceil(Math.abs(currentVelocity.y) * 0.5), 0));
+                player.physicsImpostor.setLinearVelocity(new BABYLON.Vector3(0, Math.ceil(Math.abs(currentVelocity.y)) * 0.7, 0));
                 if (!collided) {
                     hexagonsMap[i][2] = true;
                     hexagon_pressed(hexagonReal);
@@ -336,20 +364,20 @@ function dispose_hexagons(hexagon, hexagonCollisionBox) {
 
 function hexagon_pressed(hexagon) {
     // Setup keyframes animations
-    var animationHexagon = new BABYLON.Animation("positionAnimation", "position", 30, BABYLON.Animation.ANIMATIONTYPE_VECTOR3, BABYLON.Animation.ANIMATIONLOOPMODE_CONSTANT);
+    var animationHexagon = new BABYLON.Animation("positionAnimation", "position", 60, BABYLON.Animation.ANIMATIONTYPE_VECTOR3, BABYLON.Animation.ANIMATIONLOOPMODE_CONSTANT);
     var initialPosition = hexagon.position.clone(); // Store the initial position of the hexagon
 
     // Define the keyframes for the hexagon animation
     animationHexagon.setKeys([
         { frame: 0, value: initialPosition },
-        { frame: 15, value: new BABYLON.Vector3(initialPosition.x, initialPosition.y - 0.1, initialPosition.z) }, // Hexagon goes down
-        { frame: 30, value: new BABYLON.Vector3(initialPosition.x, initialPosition.y - 0.2, initialPosition.z) },
-        { frame: 45, value: new BABYLON.Vector3(initialPosition.x, initialPosition.y - 0.1, initialPosition.z) }, // Hexagon goes down
+        { frame: 15, value: new BABYLON.Vector3(initialPosition.x, initialPosition.y - 0.06, initialPosition.z) }, // Hexagon goes down
+        { frame: 30, value: new BABYLON.Vector3(initialPosition.x, initialPosition.y - 0.12, initialPosition.z) },
+        { frame: 45, value: new BABYLON.Vector3(initialPosition.x, initialPosition.y - 0.06, initialPosition.z) }, // Hexagon goes down
         { frame: 60, value: initialPosition } // Hexagon returns to initial position
     ]);
 
     // Define the keyframes for the color animation
-    var animationColor = new BABYLON.Animation("colorAnimation", "material.diffuseColor", 30, BABYLON.Animation.ANIMATIONTYPE_COLOR3, BABYLON.Animation.ANIMATIONLOOPMODE_CONSTANT);
+    var animationColor = new BABYLON.Animation("colorAnimation", "material.diffuseColor", 60, BABYLON.Animation.ANIMATIONTYPE_COLOR3, BABYLON.Animation.ANIMATIONLOOPMODE_CONSTANT);
     var initialColor = hexagon.material.diffuseColor.clone(); // Store the initial color of the hexagon material
 
     animationColor.setKeys([
@@ -458,7 +486,6 @@ function create_collision_box(hexagon, scene, name) {
     hexagonCollisionBox.position = renderingPosition;
     // Set the visibility of the collision box
     hexagonCollisionBox.isVisible = false;
-
 
     hexagonsMap.push([hexagon, hexagonCollisionBox, false, 60])
 
