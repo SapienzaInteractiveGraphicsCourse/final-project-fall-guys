@@ -8,7 +8,7 @@ Andrea Panceri, matricola: 1884749
 
 Francesco Sudos, matricola: TODO
 
-TODO
+Cristian Tedesco, matricola: TODO
 ```
 
 ## How to run in local enviroment:
