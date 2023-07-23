@@ -50,6 +50,7 @@ BABYLON.DefaultLoadingScreen.prototype.hideLoadingUI = function () {
 var startRenderLoop = function (engine) {
     engine.runRenderLoop(function () {
         if (sceneToRender && sceneToRender.activeCamera) {
+            divFps.innerHTML = engine.getFps().toFixed() + " fps";
             move_player();
             sceneToRender.render();
         }
@@ -77,6 +78,10 @@ let player = null;
 let hexagon = null;
 var platform = null;
 var loaded = false;
+
+//FPS
+const options = new BABYLON.SceneOptimizerOptions();
+let divFps = document.getElementById("fps");
 
 //STORE TUPLES OF HEXAGONS WITH HIS COLLIDE BOX
 let hexagonsMap = [];
@@ -106,19 +111,119 @@ configure_movement_listeners();
 const createScene = async function () {
     BabylonEngine.displayLoadingUI();
 
+    /*-----END GAME SCENE-----*/
+
+    const scene2 = new BABYLON.Scene(BabylonEngine);
+    // Optimizer
+    var optimizer2 = new BABYLON.SceneOptimizer(scene2, options);
+
+    const camera2 = new BABYLON.ArcRotateCamera("Camera2", Math.PI / 2, Math.PI / 4, 10, new BABYLON.Vector3(0, 0, 0), scene2);
+    // Set the camera position and target
+    camera2.setPosition(new BABYLON.Vector3(5, 10, -15));
+    camera2.setTarget(new BABYLON.Vector3(-20, 10, 0));
+    // Attach camera controls to the canvas
+    camera2.attachControl(canvas, true);
+
+    //MUSIC IN BACKGROUND
+    var endgametrack = new BABYLON.Sound("endgame", Assets.musics.endgame.Url, scene2, null, {
+        loop: true,
+        autoplay: false
+    });
+
+    //  SKYBOX
+    var skybox = BABYLON.Mesh.CreateBox("skyBox", 5000.0, scene2);
+    var skyboxMaterial = configure_skybox_material(scene2, skybox);
+
+    var advancedTextureEnd = BABYLON.GUI.AdvancedDynamicTexture.CreateFullscreenUI("UI");
+
+    // Banner with top and bottom borders
+    var bannerEnd = new BABYLON.GUI.Rectangle();
+    bannerEnd.width = 0.5;
+    bannerEnd.height = "250px";
+    bannerEnd.cornerRadius = 30;
+    bannerEnd.color = "#9a84be";
+    bannerEnd.thickness = 10;
+    bannerEnd.background = "#000000AA";
+    bannerEnd.top = "-100px";
+    advancedTextureEnd.addControl(bannerEnd);
+
+    var stackPanelEnd = new BABYLON.GUI.StackPanel();
+    stackPanelEnd.isVertical = true; // Arrange elements vertically
+    stackPanelEnd.height = "100%";
+    bannerEnd.addControl(stackPanelEnd);
+
+
+    var textblockEnd1 = create_end_text("Game Ended", 1);
+    stackPanelEnd.addControl(textblockEnd1);
+
+    var textblockEnd2 = create_end_text("ciao", 2);
+    stackPanelEnd.addControl(textblockEnd2);
+
+    // Banner with top and bottom borders
+    var bannerEnd1 = new BABYLON.GUI.Rectangle();
+    bannerEnd1.width = 0.5;
+    bannerEnd1.height = "150px";
+    bannerEnd1.cornerRadius = 30;
+    bannerEnd1.color = "#9a84be";
+    bannerEnd1.thickness = 10;
+    bannerEnd1.background = "#000000AA";
+    // Position the second banner below the first one
+    bannerEnd1.top = `${(parseFloat(bannerEnd.height) + parseFloat(bannerEnd1.height)) / 2}px`;
+    advancedTextureEnd.addControl(bannerEnd1);
+
+    var stackPanelEnd1 = new BABYLON.GUI.StackPanel();
+    stackPanelEnd1.isVertical = false; // Arrange elements vertically
+    stackPanelEnd1.height = "100%";
+    bannerEnd1.addControl(stackPanelEnd1);
+
+    var button1 = BABYLON.GUI.Button.CreateSimpleButton("button1", "Restart");
+    button1.width = "200px";
+    button1.height = "60px";
+    button1.color = "white";
+    button1.background = "#9a84be";
+    button1.paddingRight = "30px"; // Add padding between the buttons
+    button1.cornerRadius = 20; // Set the corner radius
+    button1.fontFamily = "Comic Sans MS"; // Set the font family
+    button1.fontSize = 25; // Set the font size
+    button1.onPointerClickObservable.add(function () {
+        onButtonClick("game.html"); // Pass parameters to the click event function
+    });
+    stackPanelEnd1.addControl(button1);
+
+    // Create the second button
+    var button2 = BABYLON.GUI.Button.CreateSimpleButton("button2", "Home");
+    button2.width = "200px";
+    button2.height = "60px";
+    button2.color = "white";
+    button2.background = "#9a84be";
+    button2.paddingRight = "30px"; // Add padding between the buttons
+    button2.cornerRadius = 20; // Set the corner radius
+    button2.fontFamily = "Comic Sans MS"; // Set the font family
+    button2.fontSize = 25; // Set the font size
+    button2.onPointerClickObservable.add(function () {
+        onButtonClick("index.html"); // Pass parameters to the click event function
+    });
+    stackPanelEnd1.addControl(button2);
+
+    // Create the third button
+    var button3 = BABYLON.GUI.Button.CreateSimpleButton("button3", "Options");
+    button3.width = "200px";
+    button3.height = "60px";
+    button3.color = "white";
+    button3.background = "#9a84be";
+    button3.cornerRadius = 20; // Set the corner radius
+    button3.fontFamily = "Comic Sans MS"; // Set the font family
+    button3.fontSize = 25; // Set the font size
+    button3.onPointerClickObservable.add(function () {
+        onButtonClick("options.html"); // Pass parameters to the click event function
+    });
+    stackPanelEnd1.addControl(button3);
+
+
+    /*-----START GAME SCENE-----*/
+
     // Creates a basic Babylon Scene object
     const scene = new BABYLON.Scene(BabylonEngine);
-
-    /* var scene2 = new BABYLON.Scene(BabylonEngine);
- 
-     /* var scenes = [];
-       scenes.push(scene);
-       scenes.push(scene2);
-   
-       var currentScene = scene;
- 
- 
-     var camera2 = new BABYLON.ArcRotateCamera("camera2", 0, 0, 0, new BABYLON.Vector3(0, 0, -0), scene2);*/
 
     //ENABLE PHYSICS
     scene.enablePhysics(new BABYLON.Vector3(0, -g, 0), physicsPlugin); // Enable physics with gravity 
@@ -131,6 +236,10 @@ const createScene = async function () {
 
     //CAMERA CONFIGURATION
     const camera = configure_camera(scene);
+
+
+    // Optimizer
+    var optimizer = new BABYLON.SceneOptimizer(scene, options);
 
     //LIGHT CONFIGRATION
     var light = new BABYLON.HemisphericLight("light", new BABYLON.Vector3(0, 1, 0), scene);
@@ -236,65 +345,6 @@ const createScene = async function () {
     animationGroupW.addTargetedAnimation(animationShoulderLeft, shoulderLeft);
 
 
-    // Register a collision function for the player and hexagon collision boxes
-    scene.registerBeforeRender(function () {
-        if (panel.isVisible) return;
-
-        //HANDLE END GAME
-        /* if (player.position.y < 80) {
-             BabylonEngine.stopRenderLoop();
-             currentScene = scene2;
-             cancelAnimationFrame(updateTimer);
- 
-             var elapsedTime = (performance.now() - startTime) / 1000;
-             var minutes = Math.floor(elapsedTime / 60);
-             var seconds = Math.floor(elapsedTime % 60);
-             var timeString = ""
-             if (minutes > 0) {
-                 timeString += minutes + " minute" + (minutes > 1 ? "s" : "") + " ";
-             }
-             timeString += seconds + " second" + (seconds > 1 ? "s" : "");
-             localStorage.setItem("record_one_player", timeString);
-             timerText.text = "Your record is: " + timeString;
-             BabylonEngine.runRenderLoop(function () {
- 
-                 currentScene.render();
- 
-             });
-         }*/
-        for (var i = 0; i < hexagonsMap.length; i++) {
-
-            var life = hexagonsMap[i][3];
-            var collided = hexagonsMap[i][2];
-            var hexagonBox = hexagonsMap[i][1];
-            var hexagonReal = hexagonsMap[i][0];
-
-            // Perform intersection check between player mesh and hexagon mesh
-            if (!hexagonReal.isDisposed() && playerCollisionBox.intersectsMesh(hexagonBox, true)) {
-                var currentVelocity = player.physicsImpostor.getLinearVelocity().clone();
-                player.physicsImpostor.setLinearVelocity(new BABYLON.Vector3(0, Math.ceil(Math.abs(currentVelocity.y)) * 0.7, 0));
-                if (!collided) {
-                    hexagonsMap[i][2] = true;
-                    hexagon_pressed(hexagonReal);
-                }
-            }
-
-            if (collided) {
-                if (life == 0 && hexagonBox != undefined) {
-                    dispose_hexagons(hexagonBox, hexagonReal)
-                } else {
-                    hexagonsMap[i][3] = life - 1;
-                }
-            }
-        }
-
-        // If W is pressed, start movement of shoulders
-        if (keyStatus[87] || keyStatus[83] || keyStatus[65] || keyStatus[68]) {
-            animationGroupW.start();
-        }
-    }
-    );
-
     BabylonEngine.hideLoadingUI();
 
     var advancedTexture = BABYLON.GUI.AdvancedDynamicTexture.CreateFullscreenUI("UI");
@@ -354,8 +404,123 @@ const createScene = async function () {
         requestAnimationFrame(updateTimer);
     }
 
-    return scene;
+    /* CHANGE SCENE */
+
+    var scenes = [];
+    scenes.push(scene);
+    scenes.push(scene2);
+
+    var currentScene = scene;
+
+
+    //DYNAMIC OF GAME
+
+    // Register a collision function for the player and hexagon collision boxes
+    scene.registerBeforeRender(function () {
+        if (panel.isVisible) return;
+
+        //HANDLE END GAME
+        if (player.position.y < 80) {
+            BabylonEngine.stopRenderLoop();
+
+            currentScene = scene2;
+            cancelAnimationFrame(updateTimer);
+
+            var elapsedTime = (performance.now() - startTime) / 1000;
+            var minutes = Math.floor(elapsedTime / 60);
+            var seconds = Math.floor(elapsedTime % 60);
+            var timeString = ""
+            if (minutes > 0) {
+                timeString += minutes + " minute" + (minutes > 1 ? "s" : "") + " ";
+            }
+            timeString += seconds + " second" + (seconds > 1 ? "s" : "");
+
+
+            // Retrieve the record value from local web storage or use default value
+            var currentRecord = localStorage.getItem("record_one_player") || "0 seconds";
+            localStorage.setItem("score_one_player", timeString);
+
+
+            textblockEnd2.text = "Your score: " + timeString;
+
+            // Compare the time values in seconds
+            var currentTimeInSeconds = convertTimeStringToSeconds(timeString);
+            var currentRecordInSeconds = convertTimeStringToSeconds(currentRecord);
+            console.log(currentTimeInSeconds);
+            console.log(currentRecordInSeconds);
+
+            if (currentTimeInSeconds > currentRecordInSeconds) {
+                // Update the new record in local storage
+                localStorage.setItem("record_one_player", timeString);
+            }
+
+            soundtrack.stop();
+            endgametrack.play();
+
+
+            BabylonEngine.runRenderLoop(function () {
+
+                currentScene.render();
+
+            });
+        }
+        for (var i = 0; i < hexagonsMap.length; i++) {
+
+            var life = hexagonsMap[i][3];
+            var collided = hexagonsMap[i][2];
+            var hexagonBox = hexagonsMap[i][1];
+            var hexagonReal = hexagonsMap[i][0];
+
+            // Perform intersection check between player mesh and hexagon mesh
+            if (!hexagonReal.isDisposed() && playerCollisionBox.intersectsMesh(hexagonBox, true)) {
+                var currentVelocity = player.physicsImpostor.getLinearVelocity().clone();
+                player.physicsImpostor.setLinearVelocity(new BABYLON.Vector3(0, Math.ceil(Math.abs(currentVelocity.y)) * 0.7, 0));
+                if (!collided) {
+                    hexagonsMap[i][2] = true;
+                    hexagon_pressed(hexagonReal);
+                }
+            }
+
+            if (collided) {
+                if (life == 0 && hexagonBox != undefined) {
+                    dispose_hexagons(hexagonBox, hexagonReal)
+                } else {
+                    hexagonsMap[i][3] = life - 1;
+                }
+            }
+        }
+
+        // If W is pressed, start movement of shoulders
+        if (keyStatus[87] || keyStatus[83] || keyStatus[65] || keyStatus[68]) {
+            animationGroupW.start();
+        }
+    }
+    );
+
+    return currentScene;
 };
+
+// Function to handle button click in the first banner
+function onButtonClick(name) {
+    window.location.href = name;
+}
+
+
+// Function to convert time in "X minutes Y seconds" format to seconds
+function convertTimeStringToSeconds(timeString) {
+    var timeArray = timeString.split(" ");
+    var minutes;
+    var seconds;
+    if (timeArray.length == 4) {
+        minutes = parseInt(timeArray[0]) || 0;
+        seconds = parseInt(timeArray[2]) || 0;
+    } else {
+        minutes = 0;
+        seconds = parseInt(timeArray[0]) || 0;
+    }
+    return minutes * 60 + seconds;
+}
+
 
 function dispose_hexagons(hexagon, hexagonCollisionBox) {
     hexagon.dispose();
@@ -364,7 +529,7 @@ function dispose_hexagons(hexagon, hexagonCollisionBox) {
 
 function hexagon_pressed(hexagon) {
     // Setup keyframes animations
-    var animationHexagon = new BABYLON.Animation("positionAnimation", "position", 60, BABYLON.Animation.ANIMATIONTYPE_VECTOR3, BABYLON.Animation.ANIMATIONLOOPMODE_CONSTANT);
+    var animationHexagon = new BABYLON.Animation("positionAnimation", "position", BabylonEngine.getFps().toFixed(), BABYLON.Animation.ANIMATIONTYPE_VECTOR3, BABYLON.Animation.ANIMATIONLOOPMODE_CONSTANT);
     var initialPosition = hexagon.position.clone(); // Store the initial position of the hexagon
 
     // Define the keyframes for the hexagon animation
@@ -377,7 +542,7 @@ function hexagon_pressed(hexagon) {
     ]);
 
     // Define the keyframes for the color animation
-    var animationColor = new BABYLON.Animation("colorAnimation", "material.diffuseColor", 60, BABYLON.Animation.ANIMATIONTYPE_COLOR3, BABYLON.Animation.ANIMATIONLOOPMODE_CONSTANT);
+    var animationColor = new BABYLON.Animation("colorAnimation", "material.diffuseColor", BabylonEngine.getFps().toFixed(), BABYLON.Animation.ANIMATIONTYPE_COLOR3, BABYLON.Animation.ANIMATIONLOOPMODE_CONSTANT);
     var initialColor = hexagon.material.diffuseColor.clone(); // Store the initial color of the hexagon material
 
     animationColor.setKeys([
@@ -444,10 +609,22 @@ function create_start_text() {
     return textblock;
 }
 
+function create_end_text(text, element) {
+    var textblock = new BABYLON.GUI.TextBlock("Endgame " + element, text);
+    textblock.width = 1.0;
+    textblock.height = "100px";
+    textblock.color = "white";
+    textblock.fontFamily = "Comic Sans MS"; // Use the desired font family
+    textblock.outlineColor = "#9a84be"; // Set the outline color
+    textblock.outlineWidth = 10; // Set the outline width
+    textblock.fontSize = 50;
+    return textblock;
+}
+
 function create_time_text() {
     var timerText = new BABYLON.GUI.TextBlock();
     timerText.text = "Time survived: 0 seconds";
-    timerText.height = "200px";
+    timerText.height = "100px";
     timerText.color = "white";
     timerText.fontFamily = "Comic Sans MS"; // Use the desired font family
     timerText.outlineColor = "#9a84be"; // Set the outline color
