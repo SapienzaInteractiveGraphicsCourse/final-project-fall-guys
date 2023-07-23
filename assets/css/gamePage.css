@@ -64,6 +64,21 @@ html, body {
   animation: spinlogo 2s linear infinite;
 }
 
+#fps {
+  position: absolute;
+  background-color: #9a84be;
+  border: 2px solid white;
+  text-align: center;
+  font-size: 16px;
+  font-family: 'Comic Sans MS', cursive; /* Choose a cartoon-style font */
+  text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.5); /* Add a shadow effect */
+  color: white;
+  top: 15px;
+  right: 10px;
+  width: 60px;
+  height: 25px;
+}
+
 @keyframes spinloader {
   0% {
       transform: rotate(0deg);
