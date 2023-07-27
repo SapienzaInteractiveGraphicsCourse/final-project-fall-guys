@@ -79,6 +79,8 @@ let hexagon = null;
 var platform = null;
 var loaded = false;
 
+let playerEnd = null;
+
 //FPS
 const options = new BABYLON.SceneOptimizerOptions();
 let divFps = document.getElementById("fps");
@@ -99,6 +101,7 @@ var playerCollisionBoxPosition = new BABYLON.Vector3(0.63, 0.2, 1.6);
 
 //START POSITION OF PLAYER
 var targetPosition = new BABYLON.Vector3(-15, 150, -15);
+var targetPosition2 = new BABYLON.Vector3(-1, 8.6, -11.5);
 
 //STATIC DIMENSION OF HEXAGON COLLIDE BOX
 var hexagonCollisionBoxDimensions = new BABYLON.Vector3(2.0, 0.5, 1.75);
@@ -130,6 +133,12 @@ const createScene = async function () {
         autoplay: false
     });
 
+    // Create a hemispheric light
+    var hemiLight = new BABYLON.HemisphericLight("hemiLight", new BABYLON.Vector3(0, 1, 0), scene2);
+
+    // Set the light's intensity
+    hemiLight.intensity = 0.5;
+
     //  SKYBOX
     var skybox = BABYLON.Mesh.CreateBox("skyBox", 5000.0, scene2);
     var skyboxMaterial = configure_skybox_material(scene2, skybox);
@@ -138,7 +147,7 @@ const createScene = async function () {
 
     // Banner with top and bottom borders
     var bannerEnd = new BABYLON.GUI.Rectangle();
-    bannerEnd.width = 0.5;
+    bannerEnd.width = 0.6;
     bannerEnd.height = "250px";
     bannerEnd.cornerRadius = 30;
     bannerEnd.color = "#9a84be";
@@ -156,12 +165,12 @@ const createScene = async function () {
     var textblockEnd1 = create_end_text("Game Ended", 1);
     stackPanelEnd.addControl(textblockEnd1);
 
-    var textblockEnd2 = create_end_text("ciao", 2);
+    var textblockEnd2 = create_end_text("Your Score: 0 Seconds", 2);
     stackPanelEnd.addControl(textblockEnd2);
 
     // Banner with top and bottom borders
     var bannerEnd1 = new BABYLON.GUI.Rectangle();
-    bannerEnd1.width = 0.5;
+    bannerEnd1.width = 0.6;
     bannerEnd1.height = "150px";
     bannerEnd1.cornerRadius = 30;
     bannerEnd1.color = "#9a84be";
@@ -218,6 +227,45 @@ const createScene = async function () {
         onButtonClick("options.html"); // Pass parameters to the click event function
     });
     stackPanelEnd1.addControl(button3);
+
+    //IMPORTING OF THE MESHES
+    let [playerScene2, hexagonScene2] = await Promise.all([
+        BABYLON.SceneLoader.ImportMeshAsync("", Assets.models.player.Url, "player.glb", scene2),
+        BABYLON.SceneLoader.ImportMeshAsync("", Assets.models.hexagon.Url, "hexagon.glb", scene2)
+    ])
+
+    // Detach the meshes from their parent nodes
+    let hexagonEnd = hexagonScene2["meshes"][0]._children[0];
+    hexagonEnd.material = generate_material_with_random_color(scene2, "HexagonEnd");
+    hexagonEnd.parent = null;
+
+    // Create the hexagon mesh
+
+    // Set the position of the hexagon and player to the same vector
+    hexagonEnd.position.copyFrom(targetPosition2);
+    hexagonEnd.scaling = new BABYLON.Vector3(2, 2, 1); // Scale the player mesh by a factor of 2 along all axes
+
+    playerEnd = playerScene2["meshes"][0];
+    playerEnd.position.copyFrom(targetPosition2);
+    playerEnd.position.z += 3.0;
+    playerEnd.position.x += 1.0;
+    playerEnd.position.y += 0.06;
+
+    transformNodes = playerEnd._scene.transformNodes;
+    chest = transformNodes[3];
+    pelvis = transformNodes[25];
+    torso = transformNodes[36];
+
+
+    chest.rotation.y -= 1.2;
+    pelvis.rotation.y -= 1.2;
+    torso.rotation.y -= 1.2;
+    chest.rotation = chest.rotation.clone();
+    pelvis.rotation = pelvis.rotation.clone();
+    torso.rotation = torso.rotation.clone();
+
+    playerEnd.scaling = new BABYLON.Vector3(2, 2, 2); // Scale the player mesh by a factor of 2 along all axes
+
 
 
     /*-----START GAME SCENE-----*/
@@ -685,6 +733,7 @@ function generateRandomColor() {
 
 //CONFIGURATION OF THE CAMERA
 function configure_camera(scene) {
+    var fov = localStorage.getItem("camera_fov") || 120;
     // Parameters: name, position, scene
     let camera = new BABYLON.FollowCamera("FollowCam", new BABYLON.Vector3(100 - 10, 100), scene);
     camera.heightOffset = 2;

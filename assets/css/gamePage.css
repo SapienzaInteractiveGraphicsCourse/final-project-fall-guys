@@ -67,16 +67,16 @@ html, body {
 #fps {
   position: absolute;
   background-color: #9a84be;
-  border: 2px solid white;
+  border: 5px solid black;
   text-align: center;
-  font-size: 16px;
+  font-size: 20px;
   font-family: 'Comic Sans MS', cursive; /* Choose a cartoon-style font */
   text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.5); /* Add a shadow effect */
   color: white;
   top: 15px;
-  right: 10px;
-  width: 60px;
-  height: 25px;
+  right: 15px;
+  width: 80px;
+  height: 30px;
 }
 
 @keyframes spinloader {
