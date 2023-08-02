@@ -20,7 +20,10 @@ const Assets = {
         },
         hexagon: {
             Url: "assets/static/models/platform/"
-        }
+        },
+        sphere: {
+            Url: "assets/static/models/sphere/"
+        },
     },
     musics: {
         soundtrack: {
@@ -31,6 +34,12 @@ const Assets = {
         },
         startgame: {
             Url: "assets/static/sounds/startgame.mp3"
+        },
+        sphere1: {
+            Url: "assets/static/sounds/sphere1.mp3"
+        },
+        sphere2: {
+            Url: "assets/static/sounds/sphere2.mp3"
         }
     }
 };
@@ -76,8 +85,11 @@ const g = 9.81;
 //MESHES
 let player = null;
 let hexagon = null;
+let sphere1 = null;
+let sphere2 = null;
 var platform = null;
 var loaded = false;
+let bubbleSphere = null;
 
 let playerEnd = null;
 
@@ -87,9 +99,12 @@ let divFps = document.getElementById("fps");
 
 //STORE TUPLES OF HEXAGONS WITH HIS COLLIDE BOX
 let hexagonsMap = [];
+const LUCKY_VALUE = 0.99;
+let invicible = false;
 
 //STORING KEY PRESSED
 const keyStatus = { 87: false, 65: false, 83: false, 68: false };
+const INVICIBILITY_TIME = 7000;
 
 //SPEED OF MOVEMENT
 var movementAmount = 0.04; // Adjust the movement speed as needed
@@ -273,6 +288,7 @@ const createScene = async function () {
     // Creates a basic Babylon Scene object
     const scene = new BABYLON.Scene(BabylonEngine);
 
+
     //ENABLE PHYSICS
     scene.enablePhysics(new BABYLON.Vector3(0, -g, 0), physicsPlugin); // Enable physics with gravity 
 
@@ -281,6 +297,24 @@ const createScene = async function () {
         loop: true,
         autoplay: true
     });
+
+    var sphere1Sound = new BABYLON.Sound("endgame", Assets.musics.sphere1.Url, scene2, null, {
+        loop: false,
+        autoplay: false
+    });
+
+    var sphere2Sound = new BABYLON.Sound("endgame", Assets.musics.sphere2.Url, scene2, null, {
+        loop: true,
+        autoplay: false
+    });
+
+    function endSphereSound1() {
+        sphere1Sound.stop();
+    }
+
+    function endSphereSound2() {
+        sphere2Sound.stop();
+    }
 
     //CAMERA CONFIGURATION
     const camera = configure_camera(scene);
@@ -301,11 +335,17 @@ const createScene = async function () {
     var water = configure_water_material(scene, skybox, waterMesh);
 
     //IMPORTING OF THE MESHES
-    let [playerScene, platformScene, hexagonScene] = await Promise.all([
+    let [playerScene, platformScene, hexagonScene, sphere1Scene, sphere2Scene] = await Promise.all([
         BABYLON.SceneLoader.ImportMeshAsync("", Assets.models.player.Url, "player.glb", scene),
         BABYLON.SceneLoader.ImportMeshAsync("", Assets.models.platform.Url, "platform.glb", scene),
-        BABYLON.SceneLoader.ImportMeshAsync("", Assets.models.hexagon.Url, "hexagon.glb", scene)
+        BABYLON.SceneLoader.ImportMeshAsync("", Assets.models.hexagon.Url, "hexagon.glb", scene),
+        BABYLON.SceneLoader.ImportMeshAsync("", Assets.models.sphere.Url, "sphere1.glb", scene),
+        BABYLON.SceneLoader.ImportMeshAsync("", Assets.models.sphere.Url, "sphere2.glb", scene)
     ])
+
+    // Create the sphere mesh
+    sphere1 = sphere1Scene["meshes"][0];
+    sphere2 = sphere2Scene["meshes"][0];
 
 
     platform = platformScene["meshes"][0];
@@ -314,7 +354,7 @@ const createScene = async function () {
     //CREATING HEXAGONS AND COLLIDING BOXING FOR EACH
     for (var i = 0; i < exagons.length; i++) {
         exagons[i].material = generate_material_with_random_color(scene, "Hexagon_" + i + "_platform_0");
-        create_collision_box(exagons[i], scene, "HexagonCollisionBox_" + i + "_platform_0");
+        create_collision_box(exagons[i], scene, "HexagonCollisionBox_" + i + "_platform_0", 0);
     };
 
     platform.position.y += 100;
@@ -328,7 +368,7 @@ const createScene = async function () {
         //CREATING HEXAGONS AND COLLIDING BOXING FOR EACH
         for (var j = 0; j < clonedExagons.length; j++) {
             clonedExagons[j].material = generate_material_with_random_color(scene, "Hexagon_" + j + "_platform_" + i);
-            create_collision_box(clonedExagons[j], scene, "HexagonCollisionBox_" + j + "_platform_" + i);
+            create_collision_box(clonedExagons[j], scene, "HexagonCollisionBox_" + j + "_platform_" + i, i);
         }
 
         clonedPlatform.position.y += 10 * i;
@@ -344,7 +384,6 @@ const createScene = async function () {
     hexagon.material = generate_material_with_random_color(scene, "Hexagon");
     hexagon.parent = null;
 
-    // Create the hexagon mesh
 
     // Set the position of the hexagon and player to the same vector
     hexagon.position.copyFrom(targetPosition);
@@ -355,6 +394,28 @@ const createScene = async function () {
     player.position.x += 0.5;
     player.position.z -= 1.6;
     camera.lockedTarget = player;
+
+    // Create a sphere
+    bubbleSphere = BABYLON.MeshBuilder.CreateSphere('sphere', { diameter: 3 }, scene);
+
+    // Create a material for the sphere
+    let bubbleMaterial = new BABYLON.StandardMaterial('bubbleMaterial', scene);
+    bubbleMaterial.diffuseColor = new BABYLON.Color3(1, 1, 1); // Blueish color
+    bubbleMaterial.alpha = 0.3; // Set transparency
+    bubbleMaterial.specularColor = new BABYLON.Color3(0, 0, 0); // Disable specularity
+    bubbleMaterial.backFaceCulling = false; // Show both sides of the sphere
+
+    // Apply the material to the sphere
+    bubbleSphere.material = bubbleMaterial;
+
+    // Parent the sphere to the player object
+    bubbleSphere.parent = player;
+
+    // Set the position of the sphere relative to the player's coordinate system
+    bubbleSphere.position = new BABYLON.Vector3(0.65, 1.4, 1.5);
+
+    // Set initial visibility to true
+    bubbleSphere.isVisible = false;
 
     // Create custom collision boxes based on the defined dimensions and positions
     var playerCollisionBox = BABYLON.MeshBuilder.CreateBox("playerCollisionBox", { width: playerCollisionBoxDimensions.x, height: playerCollisionBoxDimensions.y, depth: playerCollisionBoxDimensions.z }, scene);
@@ -368,7 +429,6 @@ const createScene = async function () {
     playerNodes = playerScene["transformNodes"];
     shoulderRight = playerNodes[17]
     shoulderLeft = playerNodes[8]
-    //console.log(playerNodes)
 
     var animationShoulderRight = new BABYLON.Animation("rotationAnimation", "rotation", 30, BABYLON.Animation.ANIMATIONTYPE_VECTOR3, BABYLON.Animation.ANIMATIONLOOPMODE_CONSTANT);
     animationShoulderRight.setKeys([
@@ -494,8 +554,6 @@ const createScene = async function () {
             // Compare the time values in seconds
             var currentTimeInSeconds = convertTimeStringToSeconds(timeString);
             var currentRecordInSeconds = convertTimeStringToSeconds(currentRecord);
-            console.log(currentTimeInSeconds);
-            console.log(currentRecordInSeconds);
 
             if (currentTimeInSeconds > currentRecordInSeconds) {
                 // Update the new record in local storage
@@ -518,14 +576,30 @@ const createScene = async function () {
             var collided = hexagonsMap[i][2];
             var hexagonBox = hexagonsMap[i][1];
             var hexagonReal = hexagonsMap[i][0];
+            var currentSphere = hexagonsMap[i][4];
+            var currentSphereType = hexagonsMap[i][5];
 
             // Perform intersection check between player mesh and hexagon mesh
             if (!hexagonReal.isDisposed() && playerCollisionBox.intersectsMesh(hexagonBox, true)) {
                 var currentVelocity = player.physicsImpostor.getLinearVelocity().clone();
                 player.physicsImpostor.setLinearVelocity(new BABYLON.Vector3(0, Math.ceil(Math.abs(currentVelocity.y)) * 0.7, 0));
-                if (!collided) {
+                if (!collided && !invicible) {
                     hexagonsMap[i][2] = true;
                     hexagon_pressed(hexagonReal);
+                    if (currentSphere != null) {
+                        currentSphere.dispose();
+                        if (currentSphereType == 1) {
+                            sphere1Sound.play();
+                            setTimeout(endSphereSound1, 1000); // Call after 2 seconds
+                            invicible = true;
+                            bubbleSphere.isVisible = true;
+                            setTimeout(finishInvicibility, INVICIBILITY_TIME); // Call after 2 seconds
+                        } else {
+                            sphere2Sound.play();
+                            setTimeout(endSphereSound2, 2000); // Call after 2 seconds
+                            player.physicsImpostor.setLinearVelocity(new BABYLON.Vector3(Math.random() * 40 - 20, 16, Math.random() * 40 - 20));
+                        }
+                    }
                 }
             }
 
@@ -552,6 +626,7 @@ const createScene = async function () {
 function onButtonClick(name) {
     window.location.href = name;
 }
+
 
 
 // Function to convert time in "X minutes Y seconds" format to seconds
@@ -621,6 +696,10 @@ function hexagon_pressed(hexagon) {
     animationGroupHexagon.start();
 }
 
+function finishInvicibility() {
+    bubbleSphere.isVisible = false;
+    invicible = false;
+}
 
 //GENERATE A MATERIAL FOR HEXAGON WITH RANDOM COLOR
 function generate_material_with_random_color(scene, name) {
@@ -698,7 +777,7 @@ function configure_water_material(scene, skybox, waterMesh) {
 }
 
 //HEXAGON COLLISION BOX
-function create_collision_box(hexagon, scene, name) {
+function create_collision_box(hexagon, scene, name, platformLevel) {
 
     var boundingInfo = hexagon.getBoundingInfo();
     var renderingPosition = boundingInfo.boundingBox.centerWorld;
@@ -712,7 +791,22 @@ function create_collision_box(hexagon, scene, name) {
     // Set the visibility of the collision box
     hexagonCollisionBox.isVisible = false;
 
-    hexagonsMap.push([hexagon, hexagonCollisionBox, false, 60])
+    let sphere = null;
+    let type = 0;
+    let randomValue = Math.random();
+    if (randomValue > LUCKY_VALUE) {
+        if (randomValue > (LUCKY_VALUE + ((1 - LUCKY_VALUE) / 2))) {
+            sphere = sphere1.clone("sphere1_" + name);
+            type = 1;
+        } else {
+            sphere = sphere2.clone("sphere2_" + name);
+            type = 2;
+        }
+        sphere.position = new BABYLON.Vector3(renderingPosition.x, renderingPosition.y + 0.5 * type + platformLevel * 10, renderingPosition.z);
+        sphere.scaling = new BABYLON.Vector3(0.6, 0.6, 0.6);
+    }
+
+    hexagonsMap.push([hexagon, hexagonCollisionBox, false, 60, sphere, type])
 
 }
 
