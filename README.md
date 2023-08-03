@@ -6,7 +6,7 @@ Our team:
 ```
 Andrea Panceri, matricola: 1884749
 
-Francesco Sudos, matricola: TODO
+Francesco Sudoso, matricola: 1808353
 
 Cristian Tedesco, matricola: TODO
 ```
@@ -30,7 +30,7 @@ cd final-project-fall-guys/
     Blender is a free and open-source 3D computer graphics software tool set used for creating animated films, visual effects, art, 3D-printed models, motion graphics, interactive 3D applications, virtual reality, and, formerly, video games.
 
 ## Models
--   Zombie from sketchfab [Link](https://sketchfab.com/)
+-   Player from sketchfab [Link](https://sketchfab.com/)
 -   Textures from polyhaven [Link](https://polyhaven.com/)
 
 ## Report
@@ -43,7 +43,8 @@ We **recommend** you to play the game on Chrome for better performances. To have
 
 ## How to play the game
 ```
-- W A S D / Arrow keys: directional movement
+- W A S D : directional movement
+- Space : Jump
 ```
 We **recommend** you to zoom-out and refresh the page before to start in order to have a perfect visibility of the options.
 
