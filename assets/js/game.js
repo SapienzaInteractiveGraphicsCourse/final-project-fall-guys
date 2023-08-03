@@ -60,7 +60,6 @@ var startRenderLoop = function (engine) {
     engine.runRenderLoop(function () {
         if (sceneToRender && sceneToRender.activeCamera) {
             divFps.innerHTML = engine.getFps().toFixed() + " fps";
-            move_player();
             sceneToRender.render();
         }
     });
@@ -124,7 +123,56 @@ var hexagonCollisionBoxDimensions = new BABYLON.Vector3(2.0, 0.5, 1.75);
 //LISTENER FOR MIVEMENTS
 configure_movement_listeners();
 
+function rotateBody(chest, torso, pelvis, direction){
+    // Define the quaternion animation
+    var animation = new BABYLON.Animation(
+        "boxRotationAnimation",
+        "rotationQuaternion", // The property to animate (quaternion rotation)
+        30, // Frames per second (FPS)
+        BABYLON.Animation.ANIMATIONTYPE_QUATERNION,
+        BABYLON.Animation.ANIMATIONLOOPMODE_CYCLE // The loop mode (CYCLE means it will repeat)
+    );
 
+    // Define the keyframes
+    var keyFrames = [];
+
+    // Starting keyframe
+    keyFrames.push({
+        frame: 0,
+        value: chest.rotationQuaternion.clone() // Start with the current rotation quaternion of the box
+    });
+
+    // Accumulated rotation quaternion
+    var accumulatedRotation = BABYLON.Quaternion.Identity();
+
+    // Ending keyframe
+    var additionalRotation = BABYLON.Quaternion.RotationYawPitchRoll(Math.PI / 2, 0, 0); // Rotate an additional 90 degrees around the Y-axis
+    for (var frame = 1; frame <= 30; frame++) {
+        if (direction === "right") {
+            BABYLON.Quaternion.RotationYawPitchRollToRef(-Math.PI / 2 * frame / 30, 0, 0, additionalRotation);
+        } else {
+            BABYLON.Quaternion.RotationYawPitchRollToRef(Math.PI / 2 * frame / 30, 0, 0, additionalRotation);
+        }
+        accumulatedRotation = chest.rotationQuaternion.multiply(additionalRotation);
+        keyFrames.push({
+            frame: frame,
+            value: accumulatedRotation.clone() // Set the ending quaternion for the rotation
+        });
+    }
+
+    animation.setKeys(keyFrames);
+
+    // Apply the animation to the box
+    chest.animations = [];
+    torso.animations = [];
+    pelvis.animations = [];
+    chest.animations.push(animation);
+    torso.animations.push(animation);
+    pelvis.animations.push(animation);
+    scene.beginAnimation(chest, 0, 30, false);
+    scene.beginAnimation(torso, 0, 30, false);
+    scene.beginAnimation(pelvis, 0, 30, false);
+}
 
 const createScene = async function () {
     BabylonEngine.displayLoadingUI();
@@ -267,21 +315,8 @@ const createScene = async function () {
     playerEnd.position.y += 0.06;
 
     transformNodes = playerEnd._scene.transformNodes;
-    chest = transformNodes[3];
-    pelvis = transformNodes[25];
-    torso = transformNodes[36];
-
-
-    chest.rotation.y -= 1.2;
-    pelvis.rotation.y -= 1.2;
-    torso.rotation.y -= 1.2;
-    chest.rotation = chest.rotation.clone();
-    pelvis.rotation = pelvis.rotation.clone();
-    torso.rotation = torso.rotation.clone();
 
     playerEnd.scaling = new BABYLON.Vector3(2, 2, 2); // Scale the player mesh by a factor of 2 along all axes
-
-
 
     /*-----START GAME SCENE-----*/
 
@@ -319,7 +354,6 @@ const createScene = async function () {
     //CAMERA CONFIGURATION
     const camera = configure_camera(scene);
 
-
     // Optimizer
     var optimizer = new BABYLON.SceneOptimizer(scene, options);
 
@@ -346,7 +380,6 @@ const createScene = async function () {
     // Create the sphere mesh
     sphere1 = sphere1Scene["meshes"][0];
     sphere2 = sphere2Scene["meshes"][0];
-
 
     platform = platformScene["meshes"][0];
     var exagons = platform._children;
@@ -384,7 +417,6 @@ const createScene = async function () {
     hexagon.material = generate_material_with_random_color(scene, "Hexagon");
     hexagon.parent = null;
 
-
     // Set the position of the hexagon and player to the same vector
     hexagon.position.copyFrom(targetPosition);
 
@@ -393,8 +425,8 @@ const createScene = async function () {
     player.position.y += 0.14;
     player.position.x += 0.5;
     player.position.z -= 1.6;
-    camera.lockedTarget = player;
 
+    camera.lockedTarget = playerScene["transformNodes"][5];
     // Create a sphere
     bubbleSphere = BABYLON.MeshBuilder.CreateSphere('sphere', { diameter: 3 }, scene);
 
@@ -429,6 +461,9 @@ const createScene = async function () {
     playerNodes = playerScene["transformNodes"];
     shoulderRight = playerNodes[17]
     shoulderLeft = playerNodes[8]
+    chest = playerNodes[4]
+    pelvis = playerNodes[26]
+    torso = playerNodes[37]
 
     var animationShoulderRight = new BABYLON.Animation("rotationAnimation", "rotation", 30, BABYLON.Animation.ANIMATIONTYPE_VECTOR3, BABYLON.Animation.ANIMATIONLOOPMODE_CONSTANT);
     animationShoulderRight.setKeys([
@@ -451,7 +486,6 @@ const createScene = async function () {
     var animationGroupW = new BABYLON.AnimationGroup("rotationAnimationGroup");
     animationGroupW.addTargetedAnimation(animationShoulderRight, shoulderRight);
     animationGroupW.addTargetedAnimation(animationShoulderLeft, shoulderLeft);
-
 
     BabylonEngine.hideLoadingUI();
 
@@ -519,7 +553,6 @@ const createScene = async function () {
     scenes.push(scene2);
 
     var currentScene = scene;
-
 
     //DYNAMIC OF GAME
 
@@ -613,9 +646,18 @@ const createScene = async function () {
         }
 
         // If W is pressed, start movement of shoulders
-        if (keyStatus[87] || keyStatus[83] || keyStatus[65] || keyStatus[68]) {
+        if (keyStatus[87] || keyStatus[83] || keyStatus[65]) {
+            move_player(camera);
             animationGroupW.start();
         }
+        if (keyStatus[68]){ //press D
+            rotateBody(chest, torso, pelvis, "right")
+            animationGroupW.start();
+        }
+        if(keyStatus[65]){ //press A
+            rotateBody(chest, torso, pelvis, "left")
+            animationGroupW.start();
+        } 
     }
     );
 
@@ -829,10 +871,10 @@ function generateRandomColor() {
 function configure_camera(scene) {
     var fov = localStorage.getItem("camera_fov") || 120;
     // Parameters: name, position, scene
-    let camera = new BABYLON.FollowCamera("FollowCam", new BABYLON.Vector3(100 - 10, 100), scene);
+    let camera = new BABYLON.FollowCamera("FollowCam", new BABYLON.Vector3(90, 100, 0), scene);
     camera.heightOffset = 2;
-    camera.rotationOffset = 0;
-    camera.cameraAcceleration = .1;
+    camera.rotationOffset = 180;
+    camera.cameraAcceleration = .05;
     camera.maxCameraSpeed = 1;
     camera.attachControl(canvas, true);
     return camera;
@@ -863,7 +905,6 @@ window.addEventListener("resize", function () {
     BabylonEngine.resize();
 });
 
-
 // Register keyboard input event listeners
 function configure_movement_listeners() {
     document.addEventListener("keydown", function (event) {
@@ -881,47 +922,25 @@ function configure_movement_listeners() {
     });
 }
 
-function rotatePlayer(direction) {
-    transformNodes = player._scene.transformNodes
-    chest = transformNodes[3]
-    pelvis = transformNodes[25]
-    torso = transformNodes[36]
-    if (direction == 'right') {
-        chest.rotation.y -= 0.03
-        pelvis.rotation.y -= 0.03
-        torso.rotation.y -= 0.03
-    } else {
-        chest.rotation.y += 0.03
-        pelvis.rotation.y += 0.03
-        torso.rotation.y += 0.03
-    }
-    chest.rotation = chest.rotation.clone()
-    pelvis.rotation = pelvis.rotation.clone()
-    torso.rotation = torso.rotation.clone()
-}
-
-
-function move_player() {
+function move_player(camera) {
     if (player == null) return;
     if (keyStatus[87]) {
         // 'W' key or up arrow key
-        player.position.z -= movementAmount;
+        var cameraForward = camera.getDirection(BABYLON.Vector3.Forward());
+        var speed = 0.03;
+        player.position.addInPlace(cameraForward.scaleInPlace(speed));
     }
     if (keyStatus[65]) {
-        rotatePlayer('left')
         // 'A' key or left arrow key
-        player.position.x += movementAmount;
     }
 
     if (keyStatus[83]) {
         // 'S' key or down arrow key
-        player.position.z += movementAmount;
+        player.position.z -= movementAmount;
     }
 
     if (keyStatus[68]) {
         // 'D' key or right arrow key
-        rotatePlayer('right');
-        player.position.x -= movementAmount;
     }
 
     if (keyStatus[78]) {
