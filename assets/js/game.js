@@ -108,6 +108,11 @@ const INVICIBILITY_TIME = 7000;
 //SPEED OF MOVEMENT
 var movementAmount = 0.04; // Adjust the movement speed as needed
 var rotationAmount = 0.04; // Adjust the movement speed as needed
+var jumping = false
+
+function isJumping(){
+    jumping = false;
+}
 
 //PLAYER STATIC DIMENSION OF COLLIDE BOX
 var playerCollisionBoxDimensions = new BABYLON.Vector3(0.6, 0.8, 0.4);
@@ -172,6 +177,46 @@ function rotateBody(chest, torso, pelvis, direction){
     scene.beginAnimation(chest, 0, 30, false);
     scene.beginAnimation(torso, 0, 30, false);
     scene.beginAnimation(pelvis, 0, 30, false);
+}
+
+function jump(root){
+    // Create a new Animation for the jump
+    if (jumping === false){
+        jumping = true;
+        var jumpAnimation = new BABYLON.Animation("jumpAnimation", "position.y", 30, BABYLON.Animation.ANIMATIONTYPE_FLOAT, BABYLON.Animation.ANIMATIONLOOPMODE_CYCLE);
+        var jumpHeight = 3.0
+        var jumpDuration = 60
+        var framesPerStep = jumpDuration / 3; // Divide the jump animation into three steps (start, peak, and end)
+
+        var jumpKeys = [];
+
+        // Add keyframes for the first step (ascending)
+        for (var i = 0; i <= framesPerStep; i++) {
+            jumpKeys.push({
+                frame: i,
+                value: root.position.y + (jumpHeight / framesPerStep) * i,
+            });
+        }
+
+        // Add keyframes for the second step (descending)
+        for (var i = 1; i <= framesPerStep; i++) {
+            jumpKeys.push({
+                frame: framesPerStep + i,
+                value: root.position.y + (jumpHeight - (jumpHeight / framesPerStep) * i),
+            });
+        }
+
+        // Add keyframe for the last step (return to original height)
+        jumpKeys.push({
+            frame: jumpDuration,
+            value: root.position.y,
+        });
+
+        jumpAnimation.setKeys(jumpKeys);
+        root.animations = [];
+        root.animations.push(jumpAnimation);
+        scene.beginAnimation(root, 0, jumpDuration, false, 1, isJumping);
+    }
 }
 
 const createScene = async function () {
@@ -464,6 +509,7 @@ const createScene = async function () {
     chest = playerNodes[4]
     pelvis = playerNodes[26]
     torso = playerNodes[37]
+    root = playerNodes[0]
 
     var animationShoulderRight = new BABYLON.Animation("rotationAnimation", "rotation", 30, BABYLON.Animation.ANIMATIONTYPE_VECTOR3, BABYLON.Animation.ANIMATIONLOOPMODE_CONSTANT);
     animationShoulderRight.setKeys([
@@ -658,6 +704,9 @@ const createScene = async function () {
             move_player(camera);
             animationGroupW.start();
         } 
+        if(keyStatus[32]){ //press spacebar
+            jump(root);
+        }
     }
     );
 
