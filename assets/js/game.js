@@ -651,11 +651,11 @@ const createScene = async function () {
             animationGroupW.start();
         }
         if (keyStatus[68]){ //press D
-            rotateBody(chest, torso, pelvis, "right")
+            move_player(camera);
             animationGroupW.start();
         }
         if(keyStatus[65]){ //press A
-            rotateBody(chest, torso, pelvis, "left")
+            move_player(camera);
             animationGroupW.start();
         } 
     }
@@ -874,7 +874,7 @@ function configure_camera(scene) {
     let camera = new BABYLON.FollowCamera("FollowCam", new BABYLON.Vector3(90, 100, 0), scene);
     camera.heightOffset = 2;
     camera.rotationOffset = 180;
-    camera.cameraAcceleration = .05;
+    camera.cameraAcceleration = .02;
     camera.maxCameraSpeed = 1;
     camera.attachControl(canvas, true);
     return camera;
@@ -922,25 +922,71 @@ function configure_movement_listeners() {
     });
 }
 
+function rotatePlayer(direction){
+    transformNodes = player._scene.transformNodes
+    chest = transformNodes[3]
+    pelvis = transformNodes[25]
+    torso = transformNodes[36]
+    if(direction == 'right'){
+        chest.rotation.y -= 0.02
+        pelvis.rotation.y -= 0.02
+        torso.rotation.y -= 0.02
+    } else {
+        chest.rotation.y += 0.02
+        pelvis.rotation.y += 0.02
+        torso.rotation.y += 0.02
+    }
+    chest.rotation = chest.rotation.clone()
+    pelvis.rotation = pelvis.rotation.clone()
+    torso.rotation = torso.rotation.clone()
+}
+
 function move_player(camera) {
     if (player == null) return;
     if (keyStatus[87]) {
         // 'W' key or up arrow key
         var cameraForward = camera.getDirection(BABYLON.Vector3.Forward());
-        var speed = 0.03;
-        player.position.addInPlace(cameraForward.scaleInPlace(speed));
+        var speed = 0.04;
+
+        // Get the current position of the player
+        var currentPosition = player.position.clone();
+
+        // Compute the change in position along the X-axis
+        var deltaPosition = cameraForward.scaleInPlace(speed);
+
+        // Set the Y component of deltaPosition to zero to restrict movement on those axes
+        deltaPosition.y = 0;
+
+        // Add the modified deltaPosition to the current position
+        player.position = currentPosition.add(deltaPosition);
     }
     if (keyStatus[65]) {
         // 'A' key or left arrow key
+        rotatePlayer("left")
     }
 
     if (keyStatus[83]) {
         // 'S' key or down arrow key
-        player.position.z -= movementAmount;
+        // player.position.z -= movementAmount;
+        var cameraForward = camera.getDirection(BABYLON.Vector3.Backward());
+        var speed = 0.04;
+
+        // Get the current position of the player
+        var currentPosition = player.position.clone();
+
+        // Compute the change in position along the X-axis
+        var deltaPosition = cameraForward.scaleInPlace(speed);
+
+        // Set the Y component of deltaPosition to zero to restrict movement on those axes
+        deltaPosition.y = 0;
+
+        // Add the modified deltaPosition to the current position
+        player.position = currentPosition.add(deltaPosition);
     }
 
     if (keyStatus[68]) {
         // 'D' key or right arrow key
+        rotatePlayer("right")
     }
 
     if (keyStatus[78]) {
