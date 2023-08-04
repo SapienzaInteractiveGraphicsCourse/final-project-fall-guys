@@ -98,6 +98,7 @@ let divFps = document.getElementById("fps");
 
 //STORE TUPLES OF HEXAGONS WITH HIS COLLIDE BOX
 let hexagonsMap = [];
+let spheresMap = [];
 const LUCKY_VALUE = 0.99;
 let invicible = false;
 
@@ -666,7 +667,19 @@ const createScene = async function () {
                     hexagonsMap[i][2] = true;
                     hexagon_pressed(hexagonReal);
                     if (currentSphere != null) {
+
+                        var index = 0;
+                        for (var tuple in spheresMap) {
+                            if (tuple[0] == currentSphere) {
+                                tuple[1].stop();
+                                tuple[1].dispose();
+                                break;
+                            }
+                            index++;
+                        }
                         currentSphere.dispose();
+                        spheresMap.splice(index, 1);
+
                         if (currentSphereType == 1) {
                             sphere1Sound.play();
                             setTimeout(endSphereSound1, 1000); // Call after 2 seconds
@@ -676,7 +689,7 @@ const createScene = async function () {
                         } else {
                             sphere2Sound.play();
                             setTimeout(endSphereSound2, 2000); // Call after 2 seconds
-                            player.physicsImpostor.setLinearVelocity(new BABYLON.Vector3(Math.random() * 40 - 20, Math.ceil(Math.abs(currentVelocity.y)) * 20, Math.random() * 40 - 20));
+                            player.physicsImpostor.setLinearVelocity(new BABYLON.Vector3(Math.random() * 40 - 20, Math.ceil(Math.abs(currentVelocity.y)) * 12, Math.random() * 40 - 20));
                         }
                     }
                 }
@@ -897,7 +910,10 @@ function create_collision_box(hexagon, scene, name, platformLevel) {
         sphere.scaling = new BABYLON.Vector3(0.6, 0.6, 0.6);
     }
 
-    hexagonsMap.push([hexagon, hexagonCollisionBox, false, 60, sphere, type])
+    if (sphere != null) {
+        spheresMap.push([sphere, spheresAnimation(sphere)]);
+    }
+    hexagonsMap.push([hexagon, hexagonCollisionBox, false, 60, sphere, type]);
 
 }
 
@@ -1240,4 +1256,49 @@ function endGameAnimation(player_scene) {
 
 
     animationGroupEndGame.start();
+}
+
+function spheresAnimation(sphere) {
+
+    var animationSpherePosition = new BABYLON.Animation("AnimationSphere_position", "position", 60, BABYLON.Animation.ANIMATIONTYPE_VECTOR3, BABYLON.Animation.ANIMATIONLOOPMODE_CONSTANT);
+
+    var animationSphereRotation = new BABYLON.Animation("ANimationSphere_rotation", "rotation", 60, BABYLON.Animation.ANIMATIONTYPE_VECTOR3, BABYLON.Animation.ANIMATIONLOOPMODE_CONSTANT);
+
+    var initialPosition = sphere.position;
+
+    animationSphereRotation.setKeys([
+        { frame: 0, value: new BABYLON.Vector3(0, 0, 0) },
+        { frame: 30, value: new BABYLON.Vector3(0, Math.PI / 2, 0) },
+        { frame: 60, value: new BABYLON.Vector3(0, Math.PI, 0) },
+        { frame: 90, value: new BABYLON.Vector3(0, Math.PI * 3 / 2, 0) },
+        { frame: 120, value: new BABYLON.Vector3(0, Math.PI * 2, 0) }
+    ]);
+
+
+    animationSpherePosition.setKeys([
+        { frame: 0, value: new BABYLON.Vector3(initialPosition.x, initialPosition.y, initialPosition.z) },
+        { frame: 15, value: new BABYLON.Vector3(initialPosition.x, initialPosition.y + 0.2, initialPosition.z) },
+        { frame: 30, value: new BABYLON.Vector3(initialPosition.x, initialPosition.y + 0.3, initialPosition.z) },
+        { frame: 45, value: new BABYLON.Vector3(initialPosition.x, initialPosition.y + 0.2, initialPosition.z) },
+        { frame: 60, value: new BABYLON.Vector3(initialPosition.x, initialPosition.y, initialPosition.z) }
+    ]);
+
+    sphere.animations.push(animationSpherePosition);
+    sphere.animations.push(animationSphereRotation);
+
+    var animationSphere = new BABYLON.AnimationGroup("AnimationSphereGroup");
+    animationSphere.addTargetedAnimation(animationSpherePosition, sphere);
+    animationSphere.addTargetedAnimation(animationSphereRotation, sphere);
+
+    animationSphere.loopAnimation = false;
+
+
+    animationSphere.onAnimationGroupEndObservable.add(function (event) {
+        animationSphere.start();
+    });
+
+
+    animationSphere.start();
+
+    return animationSphere;
 }
