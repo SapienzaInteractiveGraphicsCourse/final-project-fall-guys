@@ -569,15 +569,16 @@ const createScene = async function () {
     torso = playerNodes[37]
     root = playerNodes[0]
 
+    hipLeft = playerNodes[27]
+    kneeLeft = playerNodes[28]
+    hipRight = playerNodes[32]
+    kneeRight = playerNodes[33]
+
     var animationShoulderRight = new BABYLON.Animation("rotationAnimation", "rotation", 30, BABYLON.Animation.ANIMATIONTYPE_VECTOR3, BABYLON.Animation.ANIMATIONLOOPMODE_CONSTANT);
-    animationShoulderRight.setKeys([
-        { frame: 0, value: new BABYLON.Vector3(0, -Math.PI / 2, -Math.PI) },
-        { frame: 5, value: new BABYLON.Vector3(0, -Math.PI / 2, -Math.PI * 140 / 180) },
-        { frame: 10, value: new BABYLON.Vector3(0, -Math.PI / 2, -Math.PI) },
-        { frame: 15, value: new BABYLON.Vector3(0, -Math.PI / 2, -Math.PI * 220 / 180) },
-        { frame: 20, value: new BABYLON.Vector3(0, -Math.PI / 2, -Math.PI) }
-    ]);
     var animationShoulderLeft = new BABYLON.Animation("rotationAnimation", "rotation", 30, BABYLON.Animation.ANIMATIONTYPE_VECTOR3, BABYLON.Animation.ANIMATIONLOOPMODE_CONSTANT);
+    var animationKneeLeft = new BABYLON.Animation("kneeLeftAnimation", "rotation", 30, BABYLON.Animation.ANIMATIONTYPE_VECTOR3, BABYLON.Animation.ANIMATIONLOOPMODE_CYCLE);
+    var animationKneeRight = new BABYLON.Animation("kneeRightAnimation", "rotation", 30, BABYLON.Animation.ANIMATIONTYPE_VECTOR3, BABYLON.Animation.ANIMATIONLOOPMODE_CYCLE);
+
     animationShoulderLeft.setKeys([
         { frame: 0, value: new BABYLON.Vector3(0, Math.PI / 2, Math.PI) },
         { frame: 5, value: new BABYLON.Vector3(0, Math.PI / 2, Math.PI * 220 / 180) },
@@ -585,11 +586,33 @@ const createScene = async function () {
         { frame: 15, value: new BABYLON.Vector3(0, Math.PI / 2, Math.PI * 140 / 180) },
         { frame: 20, value: new BABYLON.Vector3(0, Math.PI / 2, Math.PI) }
     ]);
+    animationShoulderRight.setKeys([
+        { frame: 0, value: new BABYLON.Vector3(0, -Math.PI / 2, -Math.PI) },
+        { frame: 5, value: new BABYLON.Vector3(0, -Math.PI / 2, -Math.PI * 140 / 180) },
+        { frame: 10, value: new BABYLON.Vector3(0, -Math.PI / 2, -Math.PI) },
+        { frame: 15, value: new BABYLON.Vector3(0, -Math.PI / 2, -Math.PI * 220 / 180) },
+        { frame: 20, value: new BABYLON.Vector3(0, -Math.PI / 2, -Math.PI) }
+    ]);
+    animationKneeLeft.setKeys([
+        {frame: 0, value: new BABYLON.Vector3(-Math.PI/4, 0, 0)},
+        {frame: 10, value: new BABYLON.Vector3(-Math.PI/2, 0, 0)},
+        {frame: 20, value: new BABYLON.Vector3(-Math.PI/4, 0, 0)}
+    ])
+    animationKneeRight.setKeys([
+        {frame: 0, value: new BABYLON.Vector3(Math.PI/16, 0, -Math.PI/2)},
+        {frame: 10, value: new BABYLON.Vector3(Math.PI/16, 0, -Math.PI/4)},
+        {frame: 20, value: new BABYLON.Vector3(Math.PI/16, 0, -Math.PI/2)}
+    ])
+    
+    kneeLeft.animations.push(animationKneeLeft);
+    kneeRight.animations.push(animationKneeRight);
     shoulderRight.animations.push(animationShoulderRight);
     shoulderLeft.animations.push(animationShoulderLeft);
     var animationGroupW = new BABYLON.AnimationGroup("rotationAnimationGroup");
     animationGroupW.addTargetedAnimation(animationShoulderRight, shoulderRight);
     animationGroupW.addTargetedAnimation(animationShoulderLeft, shoulderLeft);
+    animationGroupW.addTargetedAnimation(animationKneeLeft, kneeLeft);
+    animationGroupW.addTargetedAnimation(animationKneeRight, kneeRight);
 
     BabylonEngine.hideLoadingUI();
 
