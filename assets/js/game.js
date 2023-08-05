@@ -181,16 +181,29 @@ function rotateBody(chest, torso, pelvis, direction) {
 }
 
 function jump(root) {
-    // Create a new Animation for the jump
     if (jumping === false) {
         jumping = true;
+        shoulderLeft = player._scene.transformNodes[7]
+        elbowLeft = player._scene.transformNodes[8]
+        shoulderRight = player._scene.transformNodes[16]
+        elbowRight = player._scene.transformNodes[17]
+
+        var animationShoulderLeft = new BABYLON.Animation("shoulderLeftAnimation", "rotation", 30, BABYLON.Animation.ANIMATIONTYPE_VECTOR3, BABYLON.Animation.ANIMATIONLOOPMODE_CYCLE);
+        var animationShoulderRight = new BABYLON.Animation("shoulderRightAnimation", "rotation", 30, BABYLON.Animation.ANIMATIONTYPE_VECTOR3, BABYLON.Animation.ANIMATIONLOOPMODE_CYCLE);
+        var animationElbowLeft = new BABYLON.Animation("elbowLeftAnimation", "rotation", 30, BABYLON.Animation.ANIMATIONTYPE_VECTOR3, BABYLON.Animation.ANIMATIONLOOPMODE_CYCLE);
+        var animationElbowRight = new BABYLON.Animation("elbowRightAnimation", "rotation", 30, BABYLON.Animation.ANIMATIONTYPE_VECTOR3, BABYLON.Animation.ANIMATIONLOOPMODE_CYCLE);
+        
         var jumpAnimation = new BABYLON.Animation("jumpAnimation", "position.y", 30, BABYLON.Animation.ANIMATIONTYPE_FLOAT, BABYLON.Animation.ANIMATIONLOOPMODE_CYCLE);
         var jumpHeight = 3.0
-        var jumpDuration = 60
+        var jumpDuration = 45
         var framesPerStep = jumpDuration / 3; // Divide the jump animation into three steps (start, peak, and end)
 
         var jumpKeys = [];
-
+        var shoulderLeftKeys = [];
+        var shoulderRightKeys = [];
+        var elbowLeftKeys = [];
+        var elbowRightKeys = [];
+      
         // Add keyframes for the first step (ascending)
         for (var i = 0; i <= framesPerStep; i++) {
             jumpKeys.push({
@@ -198,7 +211,7 @@ function jump(root) {
                 value: root.position.y + (jumpHeight / framesPerStep) * i,
             });
         }
-
+        
         // Add keyframes for the second step (descending)
         for (var i = 1; i <= framesPerStep; i++) {
             jumpKeys.push({
@@ -213,10 +226,54 @@ function jump(root) {
             value: root.position.y,
         });
 
+        shoulderLeftKeys.push(
+            {frame: 0, value: new BABYLON.Vector3(0, Math.PI/2, Math.PI)},
+            {frame: 15, value: new BABYLON.Vector3(-Math.PI/2, Math.PI/2, Math.PI)},
+            {frame: 30, value: new BABYLON.Vector3(0, Math.PI/2, Math.PI)}
+        )
+
+        shoulderRightKeys.push(
+            {frame: 0, value: new BABYLON.Vector3(0, -Math.PI/2, -Math.PI)},
+            {frame: 15, value: new BABYLON.Vector3(-Math.PI/2, -Math.PI/2, -Math.PI)},
+            {frame: 30, value: new BABYLON.Vector3(0, -Math.PI/2, -Math.PI)}
+        )
+
+        elbowLeftKeys.push(
+            {frame: 0, value: new BABYLON.Vector3(0, 0, 0)},
+            {frame: 15, value: new BABYLON.Vector3(0, 0, -Math.PI/3)},
+            {frame: 30, value: new BABYLON.Vector3(0, 0, 0)}
+        )
+
+        elbowRightKeys.push(
+            {frame: 0, value: new BABYLON.Vector3(0, 0, 0)},
+            {frame: 15, value: new BABYLON.Vector3(0, 0, Math.PI/3)},
+            {frame: 30, value: new BABYLON.Vector3(0, 0, 0)}
+        )
+
         jumpAnimation.setKeys(jumpKeys);
+        animationShoulderLeft.setKeys(shoulderLeftKeys);
+        animationShoulderRight.setKeys(shoulderRightKeys);
+        animationElbowLeft.setKeys(elbowLeftKeys);
+        animationElbowRight.setKeys(elbowRightKeys);
+
         root.animations = [];
+        shoulderLeft.animations = [];
+        shoulderRight.animations = [];
+        elbowLeft.animations = [];
+        elbowRight.animations = [];
+
         root.animations.push(jumpAnimation);
-        scene.beginAnimation(root, 0, jumpDuration, false, 1, isJumping);
+        shoulderLeft.animations.push(animationShoulderLeft)
+        shoulderRight.animations.push(animationShoulderRight)
+        elbowLeft.animations.push(animationElbowLeft)
+        elbowRight.animations.push(animationElbowRight)
+
+        scene.beginAnimation(shoulderLeft, 0, 30,false, 1, isJumping);
+        scene.beginAnimation(shoulderRight, 0, 30);
+        scene.beginAnimation(elbowLeft, 0, 30);
+        scene.beginAnimation(elbowRight, 0, 30);
+        scene.beginAnimation(root, 0, jumpDuration);
+        
     }
 }
 
@@ -707,15 +764,21 @@ const createScene = async function () {
         // If W is pressed, start movement of shoulders
         if (keyStatus[87] || keyStatus[83] || keyStatus[65]) {
             move_player(camera);
-            animationGroupW.start();
+            if(!jumping){
+                animationGroupW.start();
+            }
         }
         if (keyStatus[68]) { //press D
             move_player(camera);
-            animationGroupW.start();
+            if(!jumping){
+                animationGroupW.start();
+            }
         }
         if (keyStatus[65]) { //press A
             move_player(camera);
-            animationGroupW.start();
+            if(!jumping){
+                animationGroupW.start();
+            }
         }
         if (keyStatus[32]) { //press spacebar
             jump(root);
