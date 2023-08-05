@@ -1,8 +1,17 @@
 function goToGame() {
     window.location.href = "game.html";
 }
+
+function goToGameTwo() {
+    window.location.href = "game_two.html";
+}
+
 function goToOptions() {
     window.location.href = "options.html";
+}
+
+function goToTutorial() {
+    window.location.href = "tutorial.html";
 }
 
 // Retrieve the record value from local web storage or use default value
