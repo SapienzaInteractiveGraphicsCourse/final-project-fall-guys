@@ -180,6 +180,109 @@ function rotateBody(chest, torso, pelvis, direction) {
     scene.beginAnimation(pelvis, 0, 30, false);
 }
 
+function fallingAnimation(amountEndingFrame){
+    if (jumping === false) {
+        jumping = true;
+        shoulderLeft = player._scene.transformNodes[7]
+        elbowLeft = player._scene.transformNodes[8]
+        shoulderRight = player._scene.transformNodes[16]
+        elbowRight = player._scene.transformNodes[17]
+        kneeLeft = player._scene.transformNodes[27]
+        kneeRight = player._scene.transformNodes[32]
+
+        var animationShoulderLeft = new BABYLON.Animation("shoulderLeftAnimation", "rotation", 30, BABYLON.Animation.ANIMATIONTYPE_VECTOR3, BABYLON.Animation.ANIMATIONLOOPMODE_CYCLE);
+        var animationShoulderRight = new BABYLON.Animation("shoulderRightAnimation", "rotation", 30, BABYLON.Animation.ANIMATIONTYPE_VECTOR3, BABYLON.Animation.ANIMATIONLOOPMODE_CYCLE);
+        var animationElbowLeft = new BABYLON.Animation("elbowLeftAnimation", "rotation", 30, BABYLON.Animation.ANIMATIONTYPE_VECTOR3, BABYLON.Animation.ANIMATIONLOOPMODE_CYCLE);
+        var animationElbowRight = new BABYLON.Animation("elbowRightAnimation", "rotation", 30, BABYLON.Animation.ANIMATIONTYPE_VECTOR3, BABYLON.Animation.ANIMATIONLOOPMODE_CYCLE);
+        var animationKneeLeft = new BABYLON.Animation("kneeLefttAnimation", "rotation", 30, BABYLON.Animation.ANIMATIONTYPE_VECTOR3, BABYLON.Animation.ANIMATIONLOOPMODE_CYCLE);
+        var animationKneeRight = new BABYLON.Animation("kneeRightAnimation", "rotation", 30, BABYLON.Animation.ANIMATIONTYPE_VECTOR3, BABYLON.Animation.ANIMATIONLOOPMODE_CYCLE);
+        
+        var shoulderLeftKeys = [];
+        var shoulderRightKeys = [];
+        var elbowLeftKeys = [];
+        var elbowRightKeys = [];
+        var kneeLeftKeys = [];
+        var kneeRightKeys = [];
+      
+        shoulderLeftKeys.push(
+            {frame: 0, value: new BABYLON.Vector3(0, Math.PI/2, Math.PI)},
+            {frame: 25 + amountEndingFrame, value: new BABYLON.Vector3(-Math.PI, Math.PI/2, Math.PI)},
+            {frame: 35 + amountEndingFrame, value: new BABYLON.Vector3(0, Math.PI/2, Math.PI)},
+        )
+
+        shoulderRightKeys.push(
+            {frame: 0, value: new BABYLON.Vector3(0, -Math.PI/2, -Math.PI)},
+            {frame: 25 + amountEndingFrame, value: new BABYLON.Vector3(-Math.PI, -Math.PI/2, -Math.PI)},
+            {frame: 35 + amountEndingFrame, value: new BABYLON.Vector3(0, -Math.PI/2, -Math.PI)},
+        )
+
+        elbowLeftKeys.push(
+            {frame: 0, value: new BABYLON.Vector3(0, 0, 0)},
+            {frame: 25 + amountEndingFrame, value: new BABYLON.Vector3(0, 0, -Math.PI/3)},
+            {frame: 35 + amountEndingFrame, value: new BABYLON.Vector3(0, 0, 0)}
+        )
+
+        elbowRightKeys.push(
+            {frame: 0, value: new BABYLON.Vector3(0, 0, 0)},
+            {frame: 25 + amountEndingFrame, value: new BABYLON.Vector3(0, 0, Math.PI/3)},
+            {frame: 35 + amountEndingFrame, value: new BABYLON.Vector3(0, 0, 0)}
+        )
+
+        kneeLeftKeys.push(
+            {frame: 0, value: new BABYLON.Vector3(-Math.PI/4, 0, 0)},
+            {frame: 25 + amountEndingFrame, value: new BABYLON.Vector3(-Math.PI/2, 0, 0)},
+            {frame: 35 + amountEndingFrame, value: new BABYLON.Vector3(-Math.PI/3, 0, 0)}
+        )
+
+        kneeRightKeys.push(
+            {frame: 0, value: new BABYLON.Vector3(Math.PI/16, 0, -Math.PI/4)},
+            {frame: 25 + amountEndingFrame, value: new BABYLON.Vector3(Math.PI/16, 0, -Math.PI/2)},
+            {frame: 35 + amountEndingFrame, value: new BABYLON.Vector3(Math.PI/16, 0, -Math.PI/3)}
+        )
+
+        animationShoulderLeft.setKeys(shoulderLeftKeys);
+        animationShoulderRight.setKeys(shoulderRightKeys);
+        animationElbowLeft.setKeys(elbowLeftKeys);
+        animationElbowRight.setKeys(elbowRightKeys);
+        animationKneeLeft.setKeys(kneeLeftKeys);
+        animationKneeRight.setKeys(kneeRightKeys);
+
+        shoulderLeft.animations = [];
+        shoulderRight.animations = [];
+        elbowLeft.animations = [];
+        elbowRight.animations = [];
+        kneeLeft.animations = [];
+        kneeRight.animations = [];
+
+        shoulderLeft.animations.push(animationShoulderLeft)
+        shoulderRight.animations.push(animationShoulderRight)
+        elbowLeft.animations.push(animationElbowLeft)
+        elbowRight.animations.push(animationElbowRight)
+        kneeLeft.animations.push(animationKneeLeft)
+        kneeRight.animations.push(animationKneeRight)
+        
+        scene.beginAnimation(shoulderLeft, 0, 35 + amountEndingFrame,false, 1, isJumping);
+        scene.beginAnimation(shoulderRight, 0, 35 + amountEndingFrame);
+        scene.beginAnimation(elbowLeft, 0, 35 + amountEndingFrame);
+        scene.beginAnimation(elbowRight, 0, 35 + amountEndingFrame);
+        scene.beginAnimation(kneeLeft, 0, 35 + amountEndingFrame);
+        scene.beginAnimation(kneeRight, 0, 35 + amountEndingFrame);
+          
+    }
+}
+
+function isPlayerFalling() {
+    const raycastLength = 9.5; // The length of the ray to cast downward
+    const raycastDirection = new BABYLON.Vector3(0, -1, 0); // The direction to cast the ray
+  
+    const origin = player.position.clone(); // Start the raycast from the player's position
+    origin.y += 0.75 // Offset the starting position slightly above the player's feet
+  
+    const ray = new BABYLON.Ray(origin, raycastDirection, raycastLength);
+    const hit = scene.pickWithRay(ray, (mesh) => mesh.isPickable && mesh !== player);
+    return !hit || hit.distance > 2.5; // Return true if no collision or if the distance is greater than 1.0 (player is likely falling)
+}
+
 function jump(root) {
     if (jumping === false) {
         jumping = true;
@@ -729,14 +832,12 @@ const createScene = async function () {
             });
         }
         for (var i = 0; i < hexagonsMap.length; i++) {
-
             var life = hexagonsMap[i][3];
             var collided = hexagonsMap[i][2];
             var hexagonBox = hexagonsMap[i][1];
             var hexagonReal = hexagonsMap[i][0];
             var currentSphere = hexagonsMap[i][4];
             var currentSphereType = hexagonsMap[i][5];
-
             // Perform intersection check between player mesh and hexagon mesh
             if (!hexagonReal.isDisposed() && playerCollisionBox.intersectsMesh(hexagonBox, true)) {
                 var currentVelocity = player.physicsImpostor.getLinearVelocity().clone();
@@ -780,7 +881,17 @@ const createScene = async function () {
                 }
             }
         }
-
+        if(player.position.y < 139 && player.position.y >= 100) {
+            ret = isPlayerFalling()
+            console.log(player.position.y)
+            console.log(ret)
+            if(ret){
+                fallingAnimation(0)
+            }
+        } else if(player.position.y < 100){
+            fallingAnimation(30)
+        }
+            
         // If W is pressed, start movement of shoulders
         if (keyStatus[87] || keyStatus[83] || keyStatus[65]) {
             move_player(camera);
