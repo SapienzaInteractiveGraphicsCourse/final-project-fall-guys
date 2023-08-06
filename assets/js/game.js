@@ -530,27 +530,6 @@ const createScene = async function () {
     player.position.z -= 1.6;
 
     camera.lockedTarget = playerScene["transformNodes"][5];
-    // Create a sphere
-    bubbleSphere = BABYLON.MeshBuilder.CreateSphere('sphere', { diameter: 3 }, scene);
-
-    // Create a material for the sphere
-    let bubbleMaterial = new BABYLON.StandardMaterial('bubbleMaterial', scene);
-    bubbleMaterial.diffuseColor = new BABYLON.Color3(1, 1, 1); // Blueish color
-    bubbleMaterial.alpha = 0.3; // Set transparency
-    bubbleMaterial.specularColor = new BABYLON.Color3(0, 0, 0); // Disable specularity
-    bubbleMaterial.backFaceCulling = false; // Show both sides of the sphere
-
-    // Apply the material to the sphere
-    bubbleSphere.material = bubbleMaterial;
-
-    // Parent the sphere to the player object
-    bubbleSphere.parent = player;
-
-    // Set the position of the sphere relative to the player's coordinate system
-    bubbleSphere.position = new BABYLON.Vector3(0.65, 1.4, 1.5);
-
-    // Set initial visibility to true
-    bubbleSphere.isVisible = false;
 
     // Create custom collision boxes based on the defined dimensions and positions
     var playerCollisionBox = BABYLON.MeshBuilder.CreateBox("playerCollisionBox", { width: playerCollisionBoxDimensions.x, height: playerCollisionBoxDimensions.y, depth: playerCollisionBoxDimensions.z }, scene);
@@ -568,6 +547,25 @@ const createScene = async function () {
     pelvis = playerNodes[26]
     torso = playerNodes[37]
     root = playerNodes[0]
+
+    // Create a sphere
+    bubbleSphere = BABYLON.MeshBuilder.CreateSphere('sphere', { diameter: 3 }, scene);
+
+    // Create a material for the sphere
+    let bubbleMaterial = new BABYLON.StandardMaterial('bubbleMaterial', scene);
+    bubbleMaterial.diffuseColor = new BABYLON.Color3(1, 1, 1); // Blueish color
+    bubbleMaterial.alpha = 0.3; // Set transparency
+    bubbleMaterial.specularColor = new BABYLON.Color3(0, 0, 0); // Disable specularity
+    bubbleMaterial.backFaceCulling = false; // Show both sides of the sphere
+
+    // Apply the material to the sphere
+    bubbleSphere.material = bubbleMaterial;
+
+    // Parent the sphere to the player object
+    bubbleSphere.parent = chest;
+
+    // Set initial visibility to true
+    bubbleSphere.isVisible = false;
 
     hipLeft = playerNodes[27]
     kneeLeft = playerNodes[28]
@@ -747,7 +745,6 @@ const createScene = async function () {
                     hexagonsMap[i][2] = true;
                     hexagon_pressed(hexagonReal);
                     if (currentSphere != null) {
-
                         var index = 0;
                         for (var tuple in spheresMap) {
                             if (tuple[0] == currentSphere) {
