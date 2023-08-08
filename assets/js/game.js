@@ -283,9 +283,10 @@ function isPlayerFalling() {
     return !hit || hit.distance > 2.5; // Return true if no collision or if the distance is greater than 1.0 (player is likely falling)
 }
 
-function jump(root) {
+function jump(camera) {
     if (jumping === false) {
         jumping = true;
+        root = player._scene.transformNodes[0]
         shoulderLeft = player._scene.transformNodes[7]
         elbowLeft = player._scene.transformNodes[8]
         shoulderRight = player._scene.transformNodes[16]
@@ -297,7 +298,7 @@ function jump(root) {
         var animationElbowRight = new BABYLON.Animation("elbowRightAnimation", "rotation", 30, BABYLON.Animation.ANIMATIONTYPE_VECTOR3, BABYLON.Animation.ANIMATIONLOOPMODE_CYCLE);
         
         var jumpAnimation = new BABYLON.Animation("jumpAnimation", "position.y", 30, BABYLON.Animation.ANIMATIONTYPE_FLOAT, BABYLON.Animation.ANIMATIONLOOPMODE_CYCLE);
-        var jumpHeight = 3.0
+        var jumpHeight = 2.0
         var jumpDuration = 45
         var framesPerStep = jumpDuration / 3; // Divide the jump animation into three steps (start, peak, and end)
 
@@ -306,13 +307,25 @@ function jump(root) {
         var shoulderRightKeys = [];
         var elbowLeftKeys = [];
         var elbowRightKeys = [];
-      
+
         // Add keyframes for the first step (ascending)
         for (var i = 0; i <= framesPerStep; i++) {
             jumpKeys.push({
                 frame: i,
                 value: root.position.y + (jumpHeight / framesPerStep) * i,
             });
+            jumpAnimation.addEvent(new BABYLON.AnimationEvent(
+                i,
+                function() {
+                    var cameraForward = camera.getDirection(BABYLON.Vector3.Forward());
+                    var speed = 0.07;
+                    var currentPosition = player.position.clone();
+                    var deltaPosition = cameraForward.scaleInPlace(speed);
+                    deltaPosition.y = 0;
+                    player.position = currentPosition.add(deltaPosition);
+                },
+                false
+            ));
         }
         
         // Add keyframes for the second step (descending)
@@ -321,12 +334,24 @@ function jump(root) {
                 frame: framesPerStep + i,
                 value: root.position.y + (jumpHeight - (jumpHeight / framesPerStep) * i),
             });
+            jumpAnimation.addEvent(new BABYLON.AnimationEvent(
+                framesPerStep + i,
+                function() {
+                    var cameraForward = camera.getDirection(BABYLON.Vector3.Forward());
+                    var speed = 0.07;
+                    var currentPosition = player.position.clone();
+                    var deltaPosition = cameraForward.scaleInPlace(speed);
+                    deltaPosition.y = 0;
+                    player.position = currentPosition.add(deltaPosition);
+                },
+                false
+            ));
         }
 
         // Add keyframe for the last step (return to original height)
         jumpKeys.push({
             frame: jumpDuration,
-            value: root.position.y,
+            value: root.position.y
         });
 
         shoulderLeftKeys.push(
@@ -379,6 +404,8 @@ function jump(root) {
         
     }
 }
+
+
 
 const createScene = async function () {
     BabylonEngine.displayLoadingUI();
@@ -782,8 +809,6 @@ const createScene = async function () {
 
     var currentScene = scene;
 
-    //DYNAMIC OF GAME
-
     // Register a collision function for the player and hexagon collision boxes
     scene.registerBeforeRender(function () {
         if (panel.isVisible) return;
@@ -883,8 +908,6 @@ const createScene = async function () {
         }
         if(player.position.y < 139 && player.position.y >= 100) {
             ret = isPlayerFalling()
-            console.log(player.position.y)
-            console.log(ret)
             if(ret){
                 fallingAnimation(0)
             }
@@ -912,7 +935,8 @@ const createScene = async function () {
             }
         }
         if (keyStatus[32]) { //press spacebar
-            jump(root);
+            jump(camera);
+
         }
     }
     );
@@ -924,8 +948,6 @@ const createScene = async function () {
 function onButtonClick(name) {
     window.location.href = name;
 }
-
-
 
 // Function to convert time in "X minutes Y seconds" format to seconds
 function convertTimeStringToSeconds(timeString) {
@@ -1202,60 +1224,33 @@ function rotatePlayer(direction) {
 
 function move_player(camera) {
     if (player == null) return;
-    if (keyStatus[87]) {
-        // 'W' key or up arrow key
+    if (keyStatus[87]) { // 'W' key or up arrow key
+        
         var cameraForward = camera.getDirection(BABYLON.Vector3.Forward());
         var speed = 0.04;
-
-        // Get the current position of the player
         var currentPosition = player.position.clone();
-
-        // Compute the change in position along the X-axis
         var deltaPosition = cameraForward.scaleInPlace(speed);
-
-        // Set the Y component of deltaPosition to zero to restrict movement on those axes
         deltaPosition.y = 0;
-
-        // Add the modified deltaPosition to the current position
         player.position = currentPosition.add(deltaPosition);
-    }
-    if (keyStatus[65]) {
-        // 'A' key or left arrow key
-        rotatePlayer("left")
-    }
 
-    if (keyStatus[83]) {
-        // 'S' key or down arrow key
-        // player.position.z -= movementAmount;
+    }
+    if (keyStatus[83]) { // 'S' key or down arrow key
+        
         var cameraForward = camera.getDirection(BABYLON.Vector3.Backward());
         var speed = 0.04;
-
-        // Get the current position of the player
         var currentPosition = player.position.clone();
-
-        // Compute the change in position along the X-axis
         var deltaPosition = cameraForward.scaleInPlace(speed);
-
-        // Set the Y component of deltaPosition to zero to restrict movement on those axes
         deltaPosition.y = 0;
-
-        // Add the modified deltaPosition to the current position
         player.position = currentPosition.add(deltaPosition);
-    }
 
-    if (keyStatus[68]) {
-        // 'D' key or right arrow key
+    }
+    if (keyStatus[65]) { // 'A' key or left arrow key
+        rotatePlayer("left")
+    }
+    if (keyStatus[68]) { // 'D' key or right arrow key
         rotatePlayer("right")
     }
 
-    if (keyStatus[78]) {
-        // 'N' key or right arrow key
-        player.position.y -= movementAmount;
-    }
-    if (keyStatus[85]) {
-        // 'U' key or right arrow key
-        player.position.y += movementAmount;
-    }
 }
 
 
