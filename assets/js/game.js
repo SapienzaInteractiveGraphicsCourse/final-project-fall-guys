@@ -180,7 +180,7 @@ function rotateBody(chest, torso, pelvis, direction) {
     scene.beginAnimation(pelvis, 0, 30, false);
 }
 
-function fallingAnimation(amountEndingFrame){
+function fallingAnimation(amountEndingFrame) {
     if (jumping === false) {
         jumping = true;
         shoulderLeft = player._scene.transformNodes[7]
@@ -196,48 +196,48 @@ function fallingAnimation(amountEndingFrame){
         var animationElbowRight = new BABYLON.Animation("elbowRightAnimation", "rotation", 30, BABYLON.Animation.ANIMATIONTYPE_VECTOR3, BABYLON.Animation.ANIMATIONLOOPMODE_CYCLE);
         var animationKneeLeft = new BABYLON.Animation("kneeLefttAnimation", "rotation", 30, BABYLON.Animation.ANIMATIONTYPE_VECTOR3, BABYLON.Animation.ANIMATIONLOOPMODE_CYCLE);
         var animationKneeRight = new BABYLON.Animation("kneeRightAnimation", "rotation", 30, BABYLON.Animation.ANIMATIONTYPE_VECTOR3, BABYLON.Animation.ANIMATIONLOOPMODE_CYCLE);
-        
+
         var shoulderLeftKeys = [];
         var shoulderRightKeys = [];
         var elbowLeftKeys = [];
         var elbowRightKeys = [];
         var kneeLeftKeys = [];
         var kneeRightKeys = [];
-      
+
         shoulderLeftKeys.push(
-            {frame: 0, value: new BABYLON.Vector3(0, Math.PI/2, Math.PI)},
-            {frame: 25 + amountEndingFrame, value: new BABYLON.Vector3(-Math.PI, Math.PI/2, Math.PI)},
-            {frame: 35 + amountEndingFrame, value: new BABYLON.Vector3(0, Math.PI/2, Math.PI)},
+            { frame: 0, value: new BABYLON.Vector3(0, Math.PI / 2, Math.PI) },
+            { frame: 25 + amountEndingFrame, value: new BABYLON.Vector3(-Math.PI, Math.PI / 2, Math.PI) },
+            { frame: 35 + amountEndingFrame, value: new BABYLON.Vector3(0, Math.PI / 2, Math.PI) },
         )
 
         shoulderRightKeys.push(
-            {frame: 0, value: new BABYLON.Vector3(0, -Math.PI/2, -Math.PI)},
-            {frame: 25 + amountEndingFrame, value: new BABYLON.Vector3(-Math.PI, -Math.PI/2, -Math.PI)},
-            {frame: 35 + amountEndingFrame, value: new BABYLON.Vector3(0, -Math.PI/2, -Math.PI)},
+            { frame: 0, value: new BABYLON.Vector3(0, -Math.PI / 2, -Math.PI) },
+            { frame: 25 + amountEndingFrame, value: new BABYLON.Vector3(-Math.PI, -Math.PI / 2, -Math.PI) },
+            { frame: 35 + amountEndingFrame, value: new BABYLON.Vector3(0, -Math.PI / 2, -Math.PI) },
         )
 
         elbowLeftKeys.push(
-            {frame: 0, value: new BABYLON.Vector3(0, 0, 0)},
-            {frame: 25 + amountEndingFrame, value: new BABYLON.Vector3(0, 0, -Math.PI/3)},
-            {frame: 35 + amountEndingFrame, value: new BABYLON.Vector3(0, 0, 0)}
+            { frame: 0, value: new BABYLON.Vector3(0, 0, 0) },
+            { frame: 25 + amountEndingFrame, value: new BABYLON.Vector3(0, 0, -Math.PI / 3) },
+            { frame: 35 + amountEndingFrame, value: new BABYLON.Vector3(0, 0, 0) }
         )
 
         elbowRightKeys.push(
-            {frame: 0, value: new BABYLON.Vector3(0, 0, 0)},
-            {frame: 25 + amountEndingFrame, value: new BABYLON.Vector3(0, 0, Math.PI/3)},
-            {frame: 35 + amountEndingFrame, value: new BABYLON.Vector3(0, 0, 0)}
+            { frame: 0, value: new BABYLON.Vector3(0, 0, 0) },
+            { frame: 25 + amountEndingFrame, value: new BABYLON.Vector3(0, 0, Math.PI / 3) },
+            { frame: 35 + amountEndingFrame, value: new BABYLON.Vector3(0, 0, 0) }
         )
 
         kneeLeftKeys.push(
-            {frame: 0, value: new BABYLON.Vector3(-Math.PI/4, 0, 0)},
-            {frame: 25 + amountEndingFrame, value: new BABYLON.Vector3(-Math.PI/2, 0, 0)},
-            {frame: 35 + amountEndingFrame, value: new BABYLON.Vector3(-Math.PI/3, 0, 0)}
+            { frame: 0, value: new BABYLON.Vector3(-Math.PI / 4, 0, 0) },
+            { frame: 25 + amountEndingFrame, value: new BABYLON.Vector3(-Math.PI / 2, 0, 0) },
+            { frame: 35 + amountEndingFrame, value: new BABYLON.Vector3(-Math.PI / 3, 0, 0) }
         )
 
         kneeRightKeys.push(
-            {frame: 0, value: new BABYLON.Vector3(Math.PI/16, 0, -Math.PI/4)},
-            {frame: 25 + amountEndingFrame, value: new BABYLON.Vector3(Math.PI/16, 0, -Math.PI/2)},
-            {frame: 35 + amountEndingFrame, value: new BABYLON.Vector3(Math.PI/16, 0, -Math.PI/3)}
+            { frame: 0, value: new BABYLON.Vector3(Math.PI / 16, 0, -Math.PI / 4) },
+            { frame: 25 + amountEndingFrame, value: new BABYLON.Vector3(Math.PI / 16, 0, -Math.PI / 2) },
+            { frame: 35 + amountEndingFrame, value: new BABYLON.Vector3(Math.PI / 16, 0, -Math.PI / 3) }
         )
 
         animationShoulderLeft.setKeys(shoulderLeftKeys);
@@ -260,24 +260,24 @@ function fallingAnimation(amountEndingFrame){
         elbowRight.animations.push(animationElbowRight)
         kneeLeft.animations.push(animationKneeLeft)
         kneeRight.animations.push(animationKneeRight)
-        
-        scene.beginAnimation(shoulderLeft, 0, 35 + amountEndingFrame,false, 1, isJumping);
+
+        scene.beginAnimation(shoulderLeft, 0, 35 + amountEndingFrame, false, 1, isJumping);
         scene.beginAnimation(shoulderRight, 0, 35 + amountEndingFrame);
         scene.beginAnimation(elbowLeft, 0, 35 + amountEndingFrame);
         scene.beginAnimation(elbowRight, 0, 35 + amountEndingFrame);
         scene.beginAnimation(kneeLeft, 0, 35 + amountEndingFrame);
         scene.beginAnimation(kneeRight, 0, 35 + amountEndingFrame);
-          
+
     }
 }
 
 function isPlayerFalling() {
     const raycastLength = 9.5; // The length of the ray to cast downward
     const raycastDirection = new BABYLON.Vector3(0, -1, 0); // The direction to cast the ray
-  
+
     const origin = player.position.clone(); // Start the raycast from the player's position
     origin.y += 0.75 // Offset the starting position slightly above the player's feet
-  
+
     const ray = new BABYLON.Ray(origin, raycastDirection, raycastLength);
     const hit = scene.pickWithRay(ray, (mesh) => mesh.isPickable && mesh !== player);
     return !hit || hit.distance > 2.5; // Return true if no collision or if the distance is greater than 1.0 (player is likely falling)
@@ -296,7 +296,7 @@ function jump(camera) {
         var animationShoulderRight = new BABYLON.Animation("shoulderRightAnimation", "rotation", 30, BABYLON.Animation.ANIMATIONTYPE_VECTOR3, BABYLON.Animation.ANIMATIONLOOPMODE_CYCLE);
         var animationElbowLeft = new BABYLON.Animation("elbowLeftAnimation", "rotation", 30, BABYLON.Animation.ANIMATIONTYPE_VECTOR3, BABYLON.Animation.ANIMATIONLOOPMODE_CYCLE);
         var animationElbowRight = new BABYLON.Animation("elbowRightAnimation", "rotation", 30, BABYLON.Animation.ANIMATIONTYPE_VECTOR3, BABYLON.Animation.ANIMATIONLOOPMODE_CYCLE);
-        
+
         var jumpAnimation = new BABYLON.Animation("jumpAnimation", "position.y", 30, BABYLON.Animation.ANIMATIONTYPE_FLOAT, BABYLON.Animation.ANIMATIONLOOPMODE_CYCLE);
         var jumpHeight = 2.0
         var jumpDuration = 45
@@ -316,7 +316,7 @@ function jump(camera) {
             });
             jumpAnimation.addEvent(new BABYLON.AnimationEvent(
                 i,
-                function() {
+                function () {
                     var cameraForward = camera.getDirection(BABYLON.Vector3.Forward());
                     var speed = 0.07;
                     var currentPosition = player.position.clone();
@@ -327,7 +327,7 @@ function jump(camera) {
                 false
             ));
         }
-        
+
         // Add keyframes for the second step (descending)
         for (var i = 1; i <= framesPerStep; i++) {
             jumpKeys.push({
@@ -336,7 +336,7 @@ function jump(camera) {
             });
             jumpAnimation.addEvent(new BABYLON.AnimationEvent(
                 framesPerStep + i,
-                function() {
+                function () {
                     var cameraForward = camera.getDirection(BABYLON.Vector3.Forward());
                     var speed = 0.07;
                     var currentPosition = player.position.clone();
@@ -355,27 +355,27 @@ function jump(camera) {
         });
 
         shoulderLeftKeys.push(
-            {frame: 0, value: new BABYLON.Vector3(0, Math.PI/2, Math.PI)},
-            {frame: 15, value: new BABYLON.Vector3(-Math.PI/2, Math.PI/2, Math.PI)},
-            {frame: 30, value: new BABYLON.Vector3(0, Math.PI/2, Math.PI)}
+            { frame: 0, value: new BABYLON.Vector3(0, Math.PI / 2, Math.PI) },
+            { frame: 15, value: new BABYLON.Vector3(-Math.PI / 2, Math.PI / 2, Math.PI) },
+            { frame: 30, value: new BABYLON.Vector3(0, Math.PI / 2, Math.PI) }
         )
 
         shoulderRightKeys.push(
-            {frame: 0, value: new BABYLON.Vector3(0, -Math.PI/2, -Math.PI)},
-            {frame: 15, value: new BABYLON.Vector3(-Math.PI/2, -Math.PI/2, -Math.PI)},
-            {frame: 30, value: new BABYLON.Vector3(0, -Math.PI/2, -Math.PI)}
+            { frame: 0, value: new BABYLON.Vector3(0, -Math.PI / 2, -Math.PI) },
+            { frame: 15, value: new BABYLON.Vector3(-Math.PI / 2, -Math.PI / 2, -Math.PI) },
+            { frame: 30, value: new BABYLON.Vector3(0, -Math.PI / 2, -Math.PI) }
         )
 
         elbowLeftKeys.push(
-            {frame: 0, value: new BABYLON.Vector3(0, 0, 0)},
-            {frame: 15, value: new BABYLON.Vector3(0, 0, -Math.PI/3)},
-            {frame: 30, value: new BABYLON.Vector3(0, 0, 0)}
+            { frame: 0, value: new BABYLON.Vector3(0, 0, 0) },
+            { frame: 15, value: new BABYLON.Vector3(0, 0, -Math.PI / 3) },
+            { frame: 30, value: new BABYLON.Vector3(0, 0, 0) }
         )
 
         elbowRightKeys.push(
-            {frame: 0, value: new BABYLON.Vector3(0, 0, 0)},
-            {frame: 15, value: new BABYLON.Vector3(0, 0, Math.PI/3)},
-            {frame: 30, value: new BABYLON.Vector3(0, 0, 0)}
+            { frame: 0, value: new BABYLON.Vector3(0, 0, 0) },
+            { frame: 15, value: new BABYLON.Vector3(0, 0, Math.PI / 3) },
+            { frame: 30, value: new BABYLON.Vector3(0, 0, 0) }
         )
 
         jumpAnimation.setKeys(jumpKeys);
@@ -396,12 +396,12 @@ function jump(camera) {
         elbowLeft.animations.push(animationElbowLeft)
         elbowRight.animations.push(animationElbowRight)
 
-        scene.beginAnimation(shoulderLeft, 0, 30,false, 1, isJumping);
+        scene.beginAnimation(shoulderLeft, 0, 30, false, 1, isJumping);
         scene.beginAnimation(shoulderRight, 0, 30);
         scene.beginAnimation(elbowLeft, 0, 30);
         scene.beginAnimation(elbowRight, 0, 30);
         scene.beginAnimation(root, 0, jumpDuration);
-        
+
     }
 }
 
@@ -722,16 +722,16 @@ const createScene = async function () {
         { frame: 20, value: new BABYLON.Vector3(0, -Math.PI / 2, -Math.PI) }
     ]);
     animationKneeLeft.setKeys([
-        {frame: 0, value: new BABYLON.Vector3(-Math.PI/4, 0, 0)},
-        {frame: 10, value: new BABYLON.Vector3(-Math.PI/2, 0, 0)},
-        {frame: 20, value: new BABYLON.Vector3(-Math.PI/4, 0, 0)}
+        { frame: 0, value: new BABYLON.Vector3(-Math.PI / 4, 0, 0) },
+        { frame: 10, value: new BABYLON.Vector3(-Math.PI / 2, 0, 0) },
+        { frame: 20, value: new BABYLON.Vector3(-Math.PI / 4, 0, 0) }
     ])
     animationKneeRight.setKeys([
-        {frame: 0, value: new BABYLON.Vector3(Math.PI/16, 0, -Math.PI/2)},
-        {frame: 10, value: new BABYLON.Vector3(Math.PI/16, 0, -Math.PI/4)},
-        {frame: 20, value: new BABYLON.Vector3(Math.PI/16, 0, -Math.PI/2)}
+        { frame: 0, value: new BABYLON.Vector3(Math.PI / 16, 0, -Math.PI / 2) },
+        { frame: 10, value: new BABYLON.Vector3(Math.PI / 16, 0, -Math.PI / 4) },
+        { frame: 20, value: new BABYLON.Vector3(Math.PI / 16, 0, -Math.PI / 2) }
     ])
-    
+
     kneeLeft.animations.push(animationKneeLeft);
     kneeRight.animations.push(animationKneeRight);
     shoulderRight.animations.push(animationShoulderRight);
@@ -906,31 +906,31 @@ const createScene = async function () {
                 }
             }
         }
-        if(player.position.y < 139 && player.position.y >= 100) {
+        if (player.position.y < 139 && player.position.y >= 100) {
             ret = isPlayerFalling()
-            if(ret){
+            if (ret) {
                 fallingAnimation(0)
             }
-        } else if(player.position.y < 100){
+        } else if (player.position.y < 100) {
             fallingAnimation(30)
         }
-            
+
         // If W is pressed, start movement of shoulders
         if (keyStatus[87] || keyStatus[83] || keyStatus[65]) {
             move_player(camera);
-            if(!jumping){
+            if (!jumping) {
                 animationGroupW.start();
             }
         }
         if (keyStatus[68]) { //press D
             move_player(camera);
-            if(!jumping){
+            if (!jumping) {
                 animationGroupW.start();
             }
         }
         if (keyStatus[65]) { //press A
             move_player(camera);
-            if(!jumping){
+            if (!jumping) {
                 animationGroupW.start();
             }
         }
@@ -1224,18 +1224,16 @@ function rotatePlayer(direction) {
 
 function move_player(camera) {
     if (player == null) return;
-    if (keyStatus[87]) { // 'W' key or up arrow key
-        
+    if (keyStatus[87]) { // 'W' key or up arrow key  
         var cameraForward = camera.getDirection(BABYLON.Vector3.Forward());
         var speed = 0.04;
         var currentPosition = player.position.clone();
         var deltaPosition = cameraForward.scaleInPlace(speed);
         deltaPosition.y = 0;
         player.position = currentPosition.add(deltaPosition);
-
     }
     if (keyStatus[83]) { // 'S' key or down arrow key
-        
+
         var cameraForward = camera.getDirection(BABYLON.Vector3.Backward());
         var speed = 0.04;
         var currentPosition = player.position.clone();
