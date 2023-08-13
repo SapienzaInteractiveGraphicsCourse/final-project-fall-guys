@@ -164,12 +164,12 @@ function fallingAnimation(amountEndingFrame, selectedPlayer) {
             var kneeRight = selectedPlayer._scene.transformNodes[32]
 
         } else {
-            var shoulderLeft = selectedPlayer._scene.transformNodes[52]
-            var elbowLeft = selectedPlayer._scene.transformNodes[53]
-            var shoulderRight = selectedPlayer._scene.transformNodes[61]
-            var elbowRight = selectedPlayer._scene.transformNodes[62]
-            var kneeLeft = selectedPlayer._scene.transformNodes[72]
-            var kneeRight = selectedPlayer._scene.transformNodes[77]
+            var shoulderLeft = selectedPlayer._scene.transformNodes[48]
+            var elbowLeft = selectedPlayer._scene.transformNodes[49]
+            var shoulderRight = selectedPlayer._scene.transformNodes[57]
+            var elbowRight = selectedPlayer._scene.transformNodes[58]
+            var kneeLeft = selectedPlayer._scene.transformNodes[68]
+            var kneeRight = selectedPlayer._scene.transformNodes[73]
         }
 
         var animationShoulderLeft = new BABYLON.Animation("shoulderLeftAnimation", "rotation", 30, BABYLON.Animation.ANIMATIONTYPE_VECTOR3, BABYLON.Animation.ANIMATIONLOOPMODE_CYCLE);
@@ -286,10 +286,10 @@ function jump(camera, selectedPlayer) {
             var elbowRight = selectedPlayer._scene.transformNodes[17]
         } else {
             var root = selectedPlayer._scene.transformNodes[41]
-            var shoulderLeft = selectedPlayer._scene.transformNodes[52]
-            var elbowLeft = selectedPlayer._scene.transformNodes[53]
-            var shoulderRight = selectedPlayer._scene.transformNodes[61]
-            var elbowRight = selectedPlayer._scene.transformNodes[62]
+            var shoulderLeft = selectedPlayer._scene.transformNodes[48]
+            var elbowLeft = selectedPlayer._scene.transformNodes[49]
+            var shoulderRight = selectedPlayer._scene.transformNodes[57]
+            var elbowRight = selectedPlayer._scene.transformNodes[58]
         }
 
         var animationShoulderLeft = new BABYLON.Animation("shoulderLeftAnimation", "rotation", 30, BABYLON.Animation.ANIMATIONTYPE_VECTOR3, BABYLON.Animation.ANIMATIONLOOPMODE_CYCLE);
@@ -706,8 +706,6 @@ const createScene = async function () {
     playerTwo.position.x -= 0.5;
     playerTwo.position.z += 1.6;
 
-    cameraSecond.lockedTarget = playerSceneTwo["meshes"][0]._scene.transformNodes[49];
-
     // Create custom collision boxes based on the defined dimensions and positions
     var playerCollisionBox = BABYLON.MeshBuilder.CreateBox("playerCollisionBox", { width: playerCollisionBoxDimensions.x, height: playerCollisionBoxDimensions.y, depth: playerCollisionBoxDimensions.z }, scene);
     playerCollisionBox.parent = player;
@@ -735,43 +733,15 @@ const createScene = async function () {
     torso = playerNodes[37]
     root = playerNodes[0]
 
-    shoulderRightTwo = playerNodesTwo[61]
-    shoulderLeftTwo = playerNodesTwo[52]
-    chestTwo = playerNodesTwo[48]
-    pelvisTwo = playerNodesTwo[70]
-    torsoTwo = playerNodesTwo[81]
+    shoulderRightTwo = playerNodesTwo[57]
+    shoulderLeftTwo = playerNodesTwo[48]
+    chestTwo = playerNodesTwo[44]
+    pelvisTwo = playerNodesTwo[66]
+    torsoTwo = playerNodesTwo[77]
     rootTwo = playerNodesTwo[41]
 
+    cameraSecond.lockedTarget = playerSceneTwo["meshes"][0]._scene.transformNodes[45];
 
-    var rotationX = -10; // Rotation around the X-axis in degrees
-    var rotationY = 90; // Rotation around the Y-axis in degrees
-    var rotationZ = 180; // Rotation around the Z-axis in degrees
-
-    var rotationXRad = BABYLON.Tools.ToRadians(rotationX);
-    var rotationYRad = BABYLON.Tools.ToRadians(rotationY);
-    var rotationZRad = BABYLON.Tools.ToRadians(rotationZ);
-
-
-    shoulderLeftTwo.rotation = new BABYLON.Vector3(rotationXRad, rotationYRad, rotationZRad);
-
-    rotationY = -90; // Rotation around the Y-axis in degrees
-    rotationZ = -180; // Rotation around the Z-axis in degrees
-
-    rotationYRad = BABYLON.Tools.ToRadians(rotationY);
-    rotationZRad = BABYLON.Tools.ToRadians(rotationZ);
-
-
-    shoulderRightTwo.rotation = new BABYLON.Vector3(rotationXRad, rotationYRad, rotationZRad);
-
-
-    rotationY = 180; // Rotation around the Y-axis in degrees
-    rotationZ = -180; // Rotation around the Z-axis in degrees
-
-    rotationYRad = BABYLON.Tools.ToRadians(rotationY);
-    rotationZRad = BABYLON.Tools.ToRadians(rotationZ);
-
-
-    chestTwo.rotation = new BABYLON.Vector3(rotationXRad, rotationYRad, rotationZRad);
 
     // Create a sphere
     bubbleSphere = BABYLON.MeshBuilder.CreateSphere('sphere', { diameter: 3 }, scene);
@@ -803,10 +773,10 @@ const createScene = async function () {
     hipRight = playerNodes[32]
     kneeRight = playerNodes[33]
 
-    hipLeftTwo = playerNodesTwo[71]
-    kneeLeftTwo = playerNodesTwo[72]
-    hipRightTwo = playerNodesTwo[76]
-    kneeRightTwo = playerNodesTwo[77]
+    hipLeftTwo = playerNodesTwo[67]
+    kneeLeftTwo = playerNodesTwo[68]
+    hipRightTwo = playerNodesTwo[72]
+    kneeRightTwo = playerNodesTwo[73]
 
     var animationShoulderRight = new BABYLON.Animation("rotationAnimation", "rotation", 30, BABYLON.Animation.ANIMATIONTYPE_VECTOR3, BABYLON.Animation.ANIMATIONLOOPMODE_CONSTANT);
     var animationShoulderLeft = new BABYLON.Animation("rotationAnimation", "rotation", 30, BABYLON.Animation.ANIMATIONTYPE_VECTOR3, BABYLON.Animation.ANIMATIONLOOPMODE_CONSTANT);
@@ -1334,9 +1304,9 @@ function rotatePlayer(direction, selectedPlayer) {
         pelvis.rotation = pelvis.rotation.clone()
         torso.rotation = torso.rotation.clone()
     } else {
-        var chest = transformNodes[48]
-        var pelvis = transformNodes[70]
-        var torso = transformNodes[81]
+        var chest = transformNodes[44]
+        var pelvis = transformNodes[66]
+        var torso = transformNodes[77]
         if (direction == 'right') {
             chest.rotation.y -= 0.02
             pelvis.rotation.y -= 0.02
@@ -1383,13 +1353,13 @@ function move_player(camera, selectedPlayer) {
     } else {
 
         if (keyStatus[38]) { // '^' key or up arrow key  
-            var cameraForward = camera.getDirection(BABYLON.Vector3.Backward());
+            var cameraForward = camera.getDirection(BABYLON.Vector3.Forward());
             var deltaPosition = cameraForward.scaleInPlace(speed);
             deltaPosition.y = 0;
             selectedPlayer.position = currentPosition.add(deltaPosition);
         }
         if (keyStatus[40]) { // 'v' key or down arrow key
-            var cameraForward = camera.getDirection(BABYLON.Vector3.Forward());
+            var cameraForward = camera.getDirection(BABYLON.Vector3.Backward());
             var deltaPosition = cameraForward.scaleInPlace(speed);
             deltaPosition.y = 0;
             selectedPlayer.position = currentPosition.add(deltaPosition);
@@ -1428,16 +1398,16 @@ function endGameAnimation(player_scene, selectedPlayer) {
 
     } else {
 
-        var chest = transformNodes[48];
-        var pelvis = transformNodes[70];
-        var torso = transformNodes[81];
+        var chest = transformNodes[44];
+        var pelvis = transformNodes[66];
+        var torso = transformNodes[77];
         var root = transformNodes[41]
-        var leftEye = transformNodes[50]
-        var rightEye = transformNodes[51]
-        var shoulderLeft = transformNodes[52]
-        var shoulderRight = transformNodes[61]
-        var kneeLeft = transformNodes[72]
-        var kneeRight = transformNodes[77]
+        var leftEye = transformNodes[46]
+        var rightEye = transformNodes[47]
+        var shoulderLeft = transformNodes[48]
+        var shoulderRight = transformNodes[57]
+        var kneeLeft = transformNodes[68]
+        var kneeRight = transformNodes[73]
 
         var initialPositionHexagon = hexagonTwoEnd.position.clone();
         var initialColorHexagon = hexagonTwoEnd.material.diffuseColor.clone();
@@ -1453,8 +1423,6 @@ function endGameAnimation(player_scene, selectedPlayer) {
     var animationColorHexagonEnd = new BABYLON.Animation("EndGameAnimation_hexagonColor", "material.diffuseColor", 240, BABYLON.Animation.ANIMATIONTYPE_COLOR3, BABYLON.Animation.ANIMATIONLOOPMODE_CONSTANT);
 
     var animationRotationEnd = new BABYLON.Animation("EndGameAnimation_rotation", "rotation", 240, BABYLON.Animation.ANIMATIONTYPE_VECTOR3, BABYLON.Animation.ANIMATIONLOOPMODE_CYCLE);
-
-    var animationRotationChestEnd = new BABYLON.Animation("EndGameAnimation_rotationChest", "rotation", 240, BABYLON.Animation.ANIMATIONTYPE_VECTOR3, BABYLON.Animation.ANIMATIONLOOPMODE_CYCLE);
 
     var animationJumpEnd = new BABYLON.Animation("EndGameAnimation_jump", "position", 240, BABYLON.Animation.ANIMATIONTYPE_VECTOR3, BABYLON.Animation.ANIMATIONLOOPMODE_CONSTANT);
 
@@ -1581,16 +1549,6 @@ function endGameAnimation(player_scene, selectedPlayer) {
         { frame: 960, value: new BABYLON.Vector3(0, 0, 0) }
     ]);
 
-    animationRotationChestEnd.setKeys([
-        { frame: 0, value: new BABYLON.Vector3(0, 3 * Math.PI, -Math.PI) },
-        { frame: 240, value: new BABYLON.Vector3(0, 5 * Math.PI / 2, -Math.PI) },
-        { frame: 480, value: new BABYLON.Vector3(0, 2 * Math.PI, -Math.PI) },
-        { frame: 720, value: new BABYLON.Vector3(0, 3 * Math.PI / 2, -Math.PI) },
-        { frame: 960, value: new BABYLON.Vector3(0, Math.PI, -Math.PI) }
-    ]);
-
-
-
     shoulderRight.animations.push(animationShoulderRightEnd);
     shoulderLeft.animations.push(animationShoulderLeftEnd);
     kneeRight.animations.push(animationKneeRightEnd);
@@ -1598,15 +1556,14 @@ function endGameAnimation(player_scene, selectedPlayer) {
     pelvis.animations.push(animationRotationEnd);
     torso.animations.push(animationRotationEnd);
     root.animations.push(animationJumpEnd)
+    chest.animations.push(animationRotationEnd);
 
     if (selectedPlayer === playerEnd) {
         hexagonEnd.animations.push(animationColorHexagonEnd);
         hexagonEnd.animations.push(animationPositionHexagonEnd);
-        chest.animations.push(animationRotationEnd);
     } else {
         hexagonTwoEnd.animations.push(animationColorHexagonEnd);
         hexagonTwoEnd.animations.push(animationPositionHexagonEnd);
-        chest.animations.push(animationRotationChestEnd);
     }
     leftEye.animations.push(animationEyeLeftEnd);
     rightEye.animations.push(animationEyeRightEnd);
@@ -1619,12 +1576,11 @@ function endGameAnimation(player_scene, selectedPlayer) {
     animationGroupEndGame.addTargetedAnimation(animationJumpEnd, root)
     animationGroupEndGame.addTargetedAnimation(animationKneeRightEnd, kneeRight)
     animationGroupEndGame.addTargetedAnimation(animationKneeLeftEnd, kneeLeft)
+    animationGroupEndGame.addTargetedAnimation(animationRotationEnd, chest)
     if (selectedPlayer === playerEnd) {
-        animationGroupEndGame.addTargetedAnimation(animationRotationEnd, chest)
         animationGroupEndGame.addTargetedAnimation(animationColorHexagonEnd, hexagonEnd)
         animationGroupEndGame.addTargetedAnimation(animationPositionHexagonEnd, hexagonEnd)
     } else {
-        animationGroupEndGame.addTargetedAnimation(animationRotationChestEnd, chest)
         animationGroupEndGame.addTargetedAnimation(animationColorHexagonEnd, hexagonTwoEnd)
         animationGroupEndGame.addTargetedAnimation(animationPositionHexagonEnd, hexagonTwoEnd)
     }
