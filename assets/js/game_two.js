@@ -565,8 +565,8 @@ const createScene = async function () {
 
     playerTwoEnd.scaling = new BABYLON.Vector3(2, 2, 2); // Scale the player m
 
-    endGameAnimation(playerScene2, playerEnd);
-    endGameAnimation(playerSceneTwo2, playerTwoEnd);
+    var animationEndGameOne = endGameAnimation(playerScene2, playerEnd);
+    var animationEndGameTwo = endGameAnimation(playerScene2, playerTwoEnd);
     /*-----START GAME SCENE-----*/
 
     // Creates a basic Babylon Scene object
@@ -688,8 +688,8 @@ const createScene = async function () {
 
     hexagonTwo = hexagon.clone("HexagonTwo");
     hexagonTwo.material = generate_material_with_random_color(scene, "HexagonTwo");
-    hexagonTwo.position.x -= 0.5;
-    hexagonTwo.position.z += 1.6;
+    hexagonTwo.position.x += 3;
+    hexagonTwo.position.z += 5;
 
 
     player = playerScene["meshes"][0];
@@ -702,9 +702,9 @@ const createScene = async function () {
 
     playerTwo = playerSceneTwo["meshes"][0];
     playerTwo.position.copyFrom(targetPosition);
-    playerTwo.position.y -= 0.14;
-    playerTwo.position.x -= 0.5;
-    playerTwo.position.z += 1.6;
+    playerTwo.position.y += 0.14;
+    playerTwo.position.x += 3.5;
+    playerTwo.position.z += 3.6;
 
     // Create custom collision boxes based on the defined dimensions and positions
     var playerCollisionBox = BABYLON.MeshBuilder.CreateBox("playerCollisionBox", { width: playerCollisionBoxDimensions.x, height: playerCollisionBoxDimensions.y, depth: playerCollisionBoxDimensions.z }, scene);
@@ -885,8 +885,14 @@ const createScene = async function () {
 
             if (player.position.y < 80) {
                 textblockEnd2.text = "Player two win! (BLUE)"
+                animationEndGameOne.stop();
+                playerEnd.dispose();
+                hexagonEnd.dispose();
             } else {
                 textblockEnd2.text = "Player one win! (RED)"
+                animationEndGameTwo.stop();
+                playerTwoEnd.dispose();
+                hexagonTwoEnd.dispose();
             }
 
             BabylonEngine.runRenderLoop(function () {
@@ -1379,6 +1385,7 @@ function endGameAnimation(player_scene, selectedPlayer) {
 
     var transformNodes = player_scene["meshes"][0]._scene.transformNodes;
 
+    console.log(transformNodes)
     if (selectedPlayer === playerEnd) {
         var chest = transformNodes[3];
         var pelvis = transformNodes[25];
@@ -1596,6 +1603,8 @@ function endGameAnimation(player_scene, selectedPlayer) {
 
 
     animationGroupEndGame.start();
+
+    return animationGroupEndGame;
 }
 
 function spheresAnimation(sphere) {
