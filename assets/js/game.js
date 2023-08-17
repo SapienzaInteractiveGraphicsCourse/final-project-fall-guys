@@ -1127,8 +1127,13 @@ function create_collision_box(hexagon, scene, name, platformLevel) {
     }
 
     if (sphere != null) {
+        if (platformLevel == 0) {
+            sphere.position.y += 100;
+        }
         spheresMap.push([sphere, spheresAnimation(sphere)]);
     }
+
+
     hexagonsMap.push([hexagon, hexagonCollisionBox, false, 60, sphere, type]);
 
 }
