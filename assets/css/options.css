@@ -13,14 +13,14 @@ h1{
 }
 
 .box {
-    margin-top: 80px;
-      margin-left: 130px;
+      margin-top: 90px;
+      margin-left: 120px;
       border: 3px solid white;
       padding: 20px;
       border-radius: 10px;
       width: 700px;
       height: 500px;
-      background-color: #00BBFF;
+      background-color: #9a84be;
       overflow-x: hidden;
       overflow-y: auto;
       font-family: 'Comic Sans MS';
@@ -30,7 +30,6 @@ h1{
 
 .settingImage{
     margin-top: 250px;
-    margin-left: 30px;
 }
 
 .singleOption{
@@ -79,4 +78,4 @@ font-size: 24px;
 ::-webkit-scrollbar-thumb {
     background-color: white;    /* color of the scroll thumb */
     border-radius: 10px;       /* roundness of the scroll thumb */
-  }
+}

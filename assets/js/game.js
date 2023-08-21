@@ -7,6 +7,12 @@ const Assets = {
         sky: {
             Url: "assets/images/skybox/skybox.env"
         },
+        sky1: {
+            Url: "assets/images/skybox/skybox1.env"
+        },
+        sky2: {
+            Url: "assets/images/skybox/skybox2.env"
+        },
         water: {
             Url: "assets/images/waterbump.png"
         },
@@ -95,6 +101,8 @@ let playerEnd = null;
 //FPS
 const options = new BABYLON.SceneOptimizerOptions();
 let divFps = document.getElementById("fps");
+
+
 
 //STORE TUPLES OF HEXAGONS WITH HIS COLLIDE BOX
 let hexagonsMap = [];
@@ -438,6 +446,7 @@ const createScene = async function () {
     //  SKYBOX
     var skybox = BABYLON.Mesh.CreateBox("skyBox", 5000.0, scene2);
     var skyboxMaterial = configure_skybox_material(scene2, skybox);
+   
 
     var advancedTextureEnd = BABYLON.GUI.AdvancedDynamicTexture.CreateFullscreenUI("UI");
 
@@ -556,6 +565,8 @@ const createScene = async function () {
     // Creates a basic Babylon Scene object
     const scene = new BABYLON.Scene(BabylonEngine);
 
+    
+
 
     //ENABLE PHYSICS
     scene.enablePhysics(new BABYLON.Vector3(0, -g, 0), physicsPlugin); // Enable physics with gravity 
@@ -587,12 +598,22 @@ const createScene = async function () {
     //CAMERA CONFIGURATION
     const camera = configure_camera(scene);
 
+    //MOTION BLUR CONFIGURATION
+    configure_motion_blur(scene,camera);
+
+    //VOLUME
+    var volume = localStorage.getItem('volume');
+    BABYLON.Engine.audioEngine.setGlobalVolume(volume/100);
+
     // Optimizer
     var optimizer = new BABYLON.SceneOptimizer(scene, options);
 
     //LIGHT CONFIGRATION
     var light = new BABYLON.HemisphericLight("light", new BABYLON.Vector3(0, 1, 0), scene);
-
+    var directionalLight = new BABYLON.DirectionalLight("dirLight", new BABYLON.Vector3(-1, -2, -1), scene);
+	directionalLight.position = new BABYLON.Vector3(20, 40, 20);
+	directionalLight.intensity = 0.5;
+   
     //  SKYBOX
     var skybox = BABYLON.Mesh.CreateBox("skyBox", 5000.0, scene);
     var skyboxMaterial = configure_skybox_material(scene, skybox);
@@ -660,6 +681,18 @@ const createScene = async function () {
     player.position.z -= 1.6;
 
     camera.lockedTarget = playerScene["transformNodes"][5];
+
+    //to fix
+    /*var shadowValue = localStorage.getItem('shadow') || "Off";
+    console.log(shadowValue);
+
+    if(shadowValue == "On"){
+        var shadowGenerator = new BABYLON.ShadowGenerator(2048, directionalLight);
+	    shadowGenerator.getShadowMap().renderList.push(player);
+	    shadowGenerator.usePoissonSampling = true;
+
+    }*/
+    
 
     // Create custom collision boxes based on the defined dimensions and positions
     var playerCollisionBox = BABYLON.MeshBuilder.CreateBox("playerCollisionBox", { width: playerCollisionBoxDimensions.x, height: playerCollisionBoxDimensions.y, depth: playerCollisionBoxDimensions.z }, scene);
@@ -1033,9 +1066,16 @@ function generate_material_with_random_color(scene, name) {
 
 //SKYBOX CONFIGURATION
 function configure_skybox_material(scene, skybox) {
+    var maps = localStorage.getItem('maps');
     var skyboxMaterial = new BABYLON.StandardMaterial("skyBox", scene);
+    if (maps == "Map-1"){
+        skyboxMaterial.reflectionTexture = new BABYLON.CubeTexture(Assets.textures.sky.Url, scene);
+    }else if(maps == "Map-2"){
+        skyboxMaterial.reflectionTexture = new BABYLON.CubeTexture(Assets.textures.sky1.Url, scene);
+    }else if(maps == "Map-3"){
+        skyboxMaterial.reflectionTexture = new BABYLON.CubeTexture(Assets.textures.sky2.Url, scene);
+    }
     skyboxMaterial.backFaceCulling = false;
-    skyboxMaterial.reflectionTexture = new BABYLON.CubeTexture(Assets.textures.sky.Url, scene);
     skyboxMaterial.reflectionTexture.coordinatesMode = BABYLON.Texture.SKYBOX_MODE;
     skyboxMaterial.diffuseColor = new BABYLON.Color3(0, 0, 0);
     skyboxMaterial.specularColor = new BABYLON.Color3(0, 0, 0);
@@ -1165,9 +1205,30 @@ function configure_camera(scene) {
     camera.attachControl(canvas, true);
     return camera;
 }
+//CONFIGURATION OF MOTION BLUR
+function configure_motion_blur(scene,camera){
+        
+    //CHECK MOTION BLUR
+    var mbValue = localStorage.getItem("motion_blur")|| "Off";
+    console.log(mbValue);
+
+    if(mbValue =="On"){
+        var motionBlur = new BABYLON.MotionBlurPostProcess(
+            'motionBlur', // name
+             scene, // scene
+            1.0, // motion blur strength
+            camera // camera
+        );
+
+        motionBlur.motionStrength = 2;
+        motionBlur.motionBlurSamples = 16;
+
+    }
+}
+
 
 window.initFunction = async function () {
-
+    
     var asyncEngineCreation = async function () {
         try {
             return createDefaultEngine();
@@ -1181,15 +1242,19 @@ window.initFunction = async function () {
     if (!BabylonEngine) throw 'engine should not be null.';
     startRenderLoop(BabylonEngine);
     window.scene = await createScene();
+
+    
 };
 initFunction().then(() => {
     sceneToRender = scene
 });
 
+   
 // Watch for browser/canvas resize events
 window.addEventListener("resize", function () {
     BabylonEngine.resize();
 });
+
 
 // Register keyboard input event listeners
 function configure_movement_listeners() {

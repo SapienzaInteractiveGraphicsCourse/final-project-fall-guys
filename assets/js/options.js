@@ -1,3 +1,6 @@
+var mb = "Off";
+var shadow = "Off";
+
 function decreaseDifficulty(){
     var diff = document.getElementById('difficulty').innerHTML;
     if (diff == "Normal"){
@@ -35,32 +38,36 @@ function increaseMap(){
     }
 }
 function changeMotion(){
-    var mb = document.getElementById('motionBlur').innerHTML;
+    mb = document.getElementById('motionBlur').innerHTML;
     if (mb == "Off"){
         document.getElementById('motionBlur').innerHTML = "On";
-    }
+        }
 }
 function changeMotionOn(){
-    var mb = document.getElementById('motionBlur').innerHTML;
+    mb = document.getElementById('motionBlur').innerHTML;
     if (mb == "On"){
         document.getElementById('motionBlur').innerHTML = "Off";
     }
 }
-function decreaseShadow(){
-    var shadow = document.getElementById('shadow').innerHTML;
-    if (shadow == "Medium"){
-        document.getElementById('shadow').innerHTML = "Low";
-    }
-    if (shadow == "High"){
-        document.getElementById('shadow').innerHTML = "Medium";
+function shadowOff(){
+    shadow = document.getElementById('shadow').innerHTML;
+    if (shadow == "On"){
+        document.getElementById('shadow').innerHTML = "Off";
     }
 }
-function increaseShadow(){
-    var shadow = document.getElementById('shadow').innerHTML;
-    if (shadow == "Low"){
-        document.getElementById('shadow').innerHTML = "Medium";
-    }
-    if (shadow == "Medium"){
-        document.getElementById('shadow').innerHTML = "High";
-    }
+
+function shadowOn(){
+    shadow = document.getElementById('shadow').innerHTML;
+    if (shadow == "Off"){
+        document.getElementById('shadow').innerHTML = "On";
+        }
+}
+
+
+function saveSettings(){
+    localStorage.setItem("motion_blur", document.getElementById('motionBlur').innerHTML);
+    localStorage.setItem("shadow", document.getElementById('shadow').innerHTML);
+    localStorage.setItem("maps", document.getElementById('maps').innerHTML);
+    localStorage.setItem("volume", document.getElementById("volume").value);
+    window.location.href = "game.html";
 }
