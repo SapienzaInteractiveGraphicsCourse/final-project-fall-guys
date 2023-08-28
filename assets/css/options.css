@@ -1,24 +1,25 @@
 body{
     display: flex;
+    height: 100vh; 
+    margin: 0;
     background-image: url("../images/settingsBackground.png");
     background-repeat: no-repeat;
-    background-size: 100%;
+    background-size: cover;
       
 }
 h1{
-    margin-left: 20px;
-    margin-top: 20px;
     font-family: 'Comic Sans MS';
-    color: black; 
-}
+    color: black;
+    margin-left: 4%;
+    margin-top: 2%;
+  }
 
 .box {
-      margin-top: 90px;
-      margin-left: 120px;
+      margin-top: 7%;
       border: 3px solid white;
-      padding: 20px;
-      border-radius: 10px;
-      width: 700px;
+      padding: 2%;
+      border-radius: 2%;
+      width: 40%;
       height: 500px;
       background-color: #9a84be;
       overflow-x: hidden;
@@ -28,9 +29,17 @@ h1{
           
     }
 
-.settingImage{
-    margin-top: 250px;
-}
+.settingImage {
+    margin-top: 18%;
+    margin-right: 5%;
+    margin-left: 5%;
+    text-align: left;
+    }
+      
+.settingImage img {
+    max-width: 250px;
+    height: auto;
+    }
 
 .singleOption{
     text-align: left;

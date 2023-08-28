@@ -1,0 +1,60 @@
+body {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+    background-image: url("../images/settingsBackground.png");
+    background-repeat: no-repeat;
+    background-size: cover;
+  }
+  
+  h1 {
+    font-family: 'Comic Sans MS';
+    color: black;
+    margin-top: 1vh;
+  }
+  
+  .box {
+    border: 3px solid white;
+    padding: 2%;
+    border-radius: 2%;
+    width: 80%; /* Adjusted width for responsiveness */
+    max-width: 600px; /* Added maximum width for larger screens */
+    background-color: #9a84be;
+    overflow-x: hidden;
+    overflow-y: auto;
+    font-family: 'Comic Sans MS';
+    color: white;
+    margin-top: 5vh;
+  }
+  .singleOption {
+    text-align: left;
+    margin-left: 20px;
+    margin-right: 20px;
+  }
+  
+  .option1 {
+    display: flex;
+    align-items: end;
+    justify-content: center;
+    
+  }
+  .macroLabels {
+    text-align: center;
+    color: black;
+  }
+  ::-webkit-scrollbar {
+    width: 5px;               /* width of the entire scrollbar */
+  }
+  
+::-webkit-scrollbar-track {
+    background: black; 
+    border-radius: 10px;       /* color of the tracking area */
+  }
+  
+::-webkit-scrollbar-thumb {
+    background-color: white;    /* color of the scroll thumb */
+    border-radius: 10px;       /* roundness of the scroll thumb */
+}
