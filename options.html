@@ -23,11 +23,12 @@
     <title>Fall Guys: Game Settings</title>
   </head>
   <body>
- 
-      <h1>GAME SETTINGS</h1>
-    
+    <button class="backButt">
+      <i class="	fa fa-arrow-circle-o-left" onclick="getBack()"></i>
+    </button>
     
     <div class="settingImage">
+      <h1>GAME SETTINGS</h1>
       <img src="assets/images/gears.png" alt="Settings"/>
     </div>
     <div class="box">
@@ -111,9 +112,13 @@
       <div class="endOptions">
         <button class="btn btn-dark" onclick="saveSettings()">Save</button>
         <button class="btn btn-dark" onclick="resetSettings()">Reset</button>
-        <button class="btn btn-dark" onclick="exitGame()">Exit</button>
+        <button class="btn btn-dark" onclick="getBack()">Exit</button>
       </div>
     </div>
+    <audio autoplay loop controls class="audio" hidden>
+      <source src="assets/static/sounds/lobby.mp3" type="audio/mpeg" />
+      <!-- Include additional source tags with alternative audio formats for better browser compatibility -->
+    </audio>
 
     <script src="assets/js/options.js"></script>
   </body>

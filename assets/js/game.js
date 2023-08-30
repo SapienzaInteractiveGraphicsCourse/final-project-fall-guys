@@ -68,8 +68,11 @@ var startRenderLoop = function (engine) {
             divFps.innerHTML = engine.getFps().toFixed() + " fps";
             sceneToRender.render();
         }
+        
     });
 }
+
+
 
 var createDefaultEngine = function () {
     return new BABYLON.Engine(canvas, true, {
@@ -101,7 +104,6 @@ let playerEnd = null;
 //FPS
 const options = new BABYLON.SceneOptimizerOptions();
 let divFps = document.getElementById("fps");
-
 
 
 //STORE TUPLES OF HEXAGONS WITH HIS COLLIDE BOX
@@ -1225,6 +1227,9 @@ function configure_motion_blur(scene,camera){
 
     }
 }
+function goToSettings(){
+    window.location.href = "options.html";
+}
 
 
 window.initFunction = async function () {
@@ -1272,6 +1277,8 @@ function configure_movement_listeners() {
         keyStatus[keyCode] = false;
     });
 }
+
+
 
 function rotatePlayer(direction) {
     transformNodes = player._scene.transformNodes

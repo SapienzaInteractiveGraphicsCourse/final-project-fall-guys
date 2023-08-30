@@ -23,32 +23,97 @@
     <title>Fall Guys: Tutorial</title>
   </head>
   <body>
-    <h1>TUTORIAL</h1>
+    <button class="butt">
+      <i class="	fa fa-arrow-circle-o-left" onclick="getBack()"></i>
+    </button>
+    
+    <div class="settingImage">
+      <h1>TUTORIAL</h1>
+      <img src="assets/images/instruction.png" alt="Instruction"/>
+    </div>
     
     <div class="box">
       <div class="macroLabels">
-        <h2>SURVIVAL</h2>
+        <h2>SURVIVAL GAME</h2>
       </div>
       <div class="option1">
-        <h3 class="singleOption">Directional Movements:</h3>
-        <h3>A W S D</h3>  
-      </div>
-      <div class="option1">
-        <h3 class="singleOption">Jump:</h3>
-        <h3>Shift</h3>  
+        <h3 class="singleOption">The player begins the round by floating above spaced-out hexagonal platforms. 
+        After a countdown, the player is dropped onto their own platform. When a platform is touched, it starts 
+        blinking and immediately disappears. Below several levels of hexagons is a water level that ends the game. 
+        When the player touches the water, he is disqualified. Above each hexagonal platforms there are two types of spheres:
+         the bomb jump sphere which, if touched, explodes and makes the player jump, the bouble protection sphere which, 
+         if touched, encloses the player in a bubble that prevents the platform from disappearing.Try to survive as long as 
+        possible! Do your best!</h3> 
       </div>
       <div class="macroLabels">
-        <h2>1 VS 1</h2>
+        <h2>1 Vs 1 GAME</h2>
+      </div>
+      <div class="option1">
+        <h3 class="singleOption">Players begin the round by floating on spaced-out hexagonal platforms. 
+          After a countdown, the two players are dropped onto their own platform. When a platform is touched, 
+          it starts blinking and immediately disappears. Below several levels of hexagons is a water level that 
+          ends the game. When a player touches the water, he is disqualified.Above each hexagonal platforms there are two types of spheres:
+          the bomb jump sphere which, if touched, explodes and makes the player jump, the bouble protection sphere which, 
+          if touched, encloses the player in a bubble that prevents the platform from disappearing. 
+          Try to survive longer than your opponent and may the best man win!</h3>  
+      </div>
+      <br>
+      <div class="macroLabels">
+        <h2>SURVIVAL GAME COMMADS</h2>
+      </div>
+      <div class="option1">
+        <h3 class="singleOption">Directional Movements: </h3>
+        <img src="assets/images/movements.png" id="movements" alt="Move"/>  
+      </div>
+      <div class="option1">
+        <h3 class="singleOption">Jump:</h3> 
+        <img src="assets/images/spacebar.png" id="space" alt="spacebar"/>   
+      </div>
+      <div class="option1">
+        <h3 class="singleOption">Bomb Jump Sphere: </h3> 
+        <img src="assets/images/bombSphere.png"  id="bombSphere" alt="bombSphere"/>
+        
+      </div>
+      <div class="option1">
+        <h3 class="singleOption">Bubble Protection Sphere: </h3>
+        <img src="assets/images/whiteSphere.png"  id="whiteSphere" alt="whiteSphere"/>
+      </div>
+      <div class="macroLabels">
+        <h2>1 VS 1 GAME COMMANDS</h2>
       </div>  
       <div class="option1">
         <h3 class="singleOption">Directional Movements 1:</h3>
-        <h3>A W S D</h3>  
+        <img src="assets/images/movements.png" id="movements" alt="Move"/> 
       </div>
       <div class="option1">
-        <h3 class="singleOption">Jump:</h3>
-        <h3>Shift</h3>  
+        <h3 class="singleOption">Jump 1:</h3>
+        <img src="assets/images/spacebar.png" id="space" alt="spacebar"/>  
+      </div>
+      <div class="option1">
+        <h3 class="singleOption">Directional Movements 2:</h3>
+        <img src="assets/images/arrows.png" id="arrows" alt="Arrows"/> 
+      </div>
+      <div class="option1">
+        <h3 class="singleOption">Jump 2:</h3>
+        <img src="assets/images/shiftButton.png" id="shift" alt="shift"/>  
+      </div>
+      <div class="option1">
+        <h3 class="singleOption">Bomb Jump Sphere: </h3> 
+        <img src="assets/images/bombSphere.png"  id="bombSphere" alt="bombSphere"/>
+        
+      </div>
+      <div class="option1">
+        <h3 class="singleOption">Bubble Protection Sphere: </h3>
+        <img src="assets/images/whiteSphere.png"  id="whiteSphere" alt="whiteSphere"/>
       </div>
       
     </div>
+    <audio autoplay loop controls class="audio" hidden >
+      <source src="assets/static/sounds/lobby.mp3" type="audio/mpeg" />
+      <!-- Include additional source tags with alternative audio formats for better browser compatibility -->
+    </audio>
+   
+    <script src="assets/js/options.js"></script>
   </body>
+ 
 </html>

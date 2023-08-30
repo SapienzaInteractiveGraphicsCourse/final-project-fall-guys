@@ -78,6 +78,21 @@ html, body {
   width: 80px;
   height: 30px;
 }
+#option{
+  position: absolute;
+  background-color: #9a84be;
+  border: 5px solid black;
+  text-align: center;
+  font-size: 20px;
+  font-family: 'Comic Sans MS', cursive; /* Choose a cartoon-style font */
+  text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.5); /* Add a shadow effect */
+  color: white;
+  top: 15px;
+  right: 1400px;
+  width: 80px;
+  height: 40px;
+
+}
 
 @keyframes spinloader {
   0% {

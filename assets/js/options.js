@@ -63,11 +63,24 @@ function shadowOn(){
         }
 }
 
+function getBack(){
+    window.location.href = "index.html";
+    
+}
+
 
 function saveSettings(){
+    localStorage.setItem("maps", document.getElementById('maps').innerHTML);
     localStorage.setItem("motion_blur", document.getElementById('motionBlur').innerHTML);
     localStorage.setItem("shadow", document.getElementById('shadow').innerHTML);
-    localStorage.setItem("maps", document.getElementById('maps').innerHTML);
     localStorage.setItem("volume", document.getElementById("volume").value);
-    window.location.href = "game.html";
+    window.location.href = "index.html";
+}
+
+function resetSettings(){
+    localStorage.setItem("maps", "Map-1");
+    localStorage.setItem("motion_blur", "On");
+    localStorage.setItem("shadow", "Off");
+    localStorage.setItem("volume", 0.5);
+    window.location.href = "index.html";
 }
