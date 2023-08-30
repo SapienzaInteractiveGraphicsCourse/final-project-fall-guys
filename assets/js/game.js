@@ -13,6 +13,12 @@ const Assets = {
         sky2: {
             Url: "assets/images/skybox/skybox2.env"
         },
+        sky3: {
+            Url: "assets/images/skybox/skybox3.env"
+        },
+        sky4: {
+            Url: "assets/images/skybox/skybox4.env"
+        },
         water: {
             Url: "assets/images/waterbump.png"
         },
@@ -1076,6 +1082,10 @@ function configure_skybox_material(scene, skybox) {
         skyboxMaterial.reflectionTexture = new BABYLON.CubeTexture(Assets.textures.sky1.Url, scene);
     }else if(maps == "Map-3"){
         skyboxMaterial.reflectionTexture = new BABYLON.CubeTexture(Assets.textures.sky2.Url, scene);
+    }else if(maps == "Map-4"){
+        skyboxMaterial.reflectionTexture = new BABYLON.CubeTexture(Assets.textures.sky3.Url, scene);
+    }else if(maps == "Map-5"){
+        skyboxMaterial.reflectionTexture = new BABYLON.CubeTexture(Assets.textures.sky4.Url, scene);
     }
     skyboxMaterial.backFaceCulling = false;
     skyboxMaterial.reflectionTexture.coordinatesMode = BABYLON.Texture.SKYBOX_MODE;

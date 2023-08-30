@@ -27,9 +27,21 @@ function decreaseMap(){
     if (map == "Map-3"){
         document.getElementById('maps').innerHTML = "Map-2";
     }
+    if (map == "Map-4"){
+        document.getElementById('maps').innerHTML = "Map-3";
+    }
+    if (map == "Map-5"){
+        document.getElementById('maps').innerHTML = "Map-4";
+    }
 }
 function increaseMap(){
     var map = document.getElementById('maps').innerHTML;
+    if (map == "Map-4"){
+        document.getElementById('maps').innerHTML = "Map-5";
+    }
+    if (map == "Map-3"){
+        document.getElementById('maps').innerHTML = "Map-4";
+    }
     if (map == "Map-2"){
         document.getElementById('maps').innerHTML = "Map-3";
     }
