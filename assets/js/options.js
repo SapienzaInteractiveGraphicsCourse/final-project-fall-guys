@@ -1,87 +1,113 @@
 var mb = "Off";
 var shadow = "Off";
 
-function decreaseDifficulty(){
+const defaultPlayerOneUsername = "Player One";
+const defaultPlayerTwoUsername = "Player Two";
+const playerOneUsername = localStorage.getItem("playerOne");
+const playerTwoUsername = localStorage.getItem("playerTwo");
+
+const playerOneInput = document.getElementById("playerOneUsername");
+const playerTwoInput = document.getElementById("playerTwoUsername");
+
+playerOneInput.placeholder = playerOneUsername || defaultPlayerOneUsername
+playerTwoInput.placeholder = playerTwoUsername || defaultPlayerTwoUsername;
+
+playerOneInput.value = playerOneUsername || defaultPlayerOneUsername;
+playerTwoInput.value = playerTwoUsername || defaultPlayerTwoUsername;
+
+
+function decreaseDifficulty() {
     var diff = document.getElementById('difficulty').innerHTML;
-    if (diff == "Normal"){
+    if (diff == "Normal") {
         document.getElementById('difficulty').innerHTML = "Easy";
     }
-    if (diff == "Advanced"){
+    if (diff == "Advanced") {
         document.getElementById('difficulty').innerHTML = "Normal";
     }
 }
-function increaseDifficulty(){
+function increaseDifficulty() {
     var diff = document.getElementById('difficulty').innerHTML;
-    if (diff == "Normal"){
+    if (diff == "Normal") {
         document.getElementById('difficulty').innerHTML = "Advanced";
     }
-    if (diff == "Easy"){
+    if (diff == "Easy") {
         document.getElementById('difficulty').innerHTML = "Normal";
     }
 }
-function decreaseMap(){
+function decreaseMap() {
     var map = document.getElementById('maps').innerHTML;
-    if (map == "Map-2"){
+    if (map == "Map-2") {
         document.getElementById('maps').innerHTML = "Map-1";
     }
-    if (map == "Map-3"){
+    if (map == "Map-3") {
         document.getElementById('maps').innerHTML = "Map-2";
     }
-    if (map == "Map-4"){
+    if (map == "Map-4") {
         document.getElementById('maps').innerHTML = "Map-3";
     }
-    if (map == "Map-5"){
+    if (map == "Map-5") {
         document.getElementById('maps').innerHTML = "Map-4";
     }
 }
-function increaseMap(){
+function increaseMap() {
     var map = document.getElementById('maps').innerHTML;
-    if (map == "Map-4"){
+    if (map == "Map-4") {
         document.getElementById('maps').innerHTML = "Map-5";
     }
-    if (map == "Map-3"){
+    if (map == "Map-3") {
         document.getElementById('maps').innerHTML = "Map-4";
     }
-    if (map == "Map-2"){
+    if (map == "Map-2") {
         document.getElementById('maps').innerHTML = "Map-3";
     }
-    if (map == "Map-1"){
+    if (map == "Map-1") {
         document.getElementById('maps').innerHTML = "Map-2";
     }
 }
-function changeMotion(){
+function changeMotion() {
     mb = document.getElementById('motionBlur').innerHTML;
-    if (mb == "Off"){
+    if (mb == "Off") {
         document.getElementById('motionBlur').innerHTML = "On";
-        }
+    }
 }
-function changeMotionOn(){
+function changeMotionOn() {
     mb = document.getElementById('motionBlur').innerHTML;
-    if (mb == "On"){
+    if (mb == "On") {
         document.getElementById('motionBlur').innerHTML = "Off";
     }
 }
-function shadowOff(){
+function shadowOff() {
     shadow = document.getElementById('shadow').innerHTML;
-    if (shadow == "On"){
+    if (shadow == "On") {
         document.getElementById('shadow').innerHTML = "Off";
     }
 }
 
-function shadowOn(){
+function shadowOn() {
     shadow = document.getElementById('shadow').innerHTML;
-    if (shadow == "Off"){
+    if (shadow == "Off") {
         document.getElementById('shadow').innerHTML = "On";
-        }
+    }
 }
 
-function getBack(){
+function getBack() {
     window.location.href = "index.html";
-    
+
 }
 
 
-function saveSettings(){
+function saveSettings() {
+    const playerOneUsername = document.getElementById("playerOneUsername").value;
+    const playerTwoUsername = document.getElementById("playerTwoUsername").value;
+
+    localStorage.setItem(
+        "playerOne",
+        playerOneUsername || defaultPlayerOneUsername
+    );
+    localStorage.setItem(
+        "playerTwo",
+        playerTwoUsername || defaultPlayerTwoUsername
+    );
     localStorage.setItem("maps", document.getElementById('maps').innerHTML);
     localStorage.setItem("motion_blur", document.getElementById('motionBlur').innerHTML);
     localStorage.setItem("shadow", document.getElementById('shadow').innerHTML);
@@ -89,7 +115,13 @@ function saveSettings(){
     window.location.href = "index.html";
 }
 
-function resetSettings(){
+function resetSettings() {
+    localStorage.setItem(
+        "playerOne", defaultPlayerOneUsername
+    );
+    localStorage.setItem(
+        "playerTwo", defaultPlayerTwoUsername
+    );
     localStorage.setItem("maps", "Map-1");
     localStorage.setItem("motion_blur", "On");
     localStorage.setItem("shadow", "Off");

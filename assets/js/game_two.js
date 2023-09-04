@@ -44,6 +44,12 @@ const Assets = {
     }
 };
 
+const playerOneUsername = localStorage.getItem("playerOne") || "Player One";
+const playerTwoUsername = localStorage.getItem("playerTwo") || "Player Two";
+
+document.getElementById("playerOneUsername").textContent = playerOneUsername;
+document.getElementById("playerTwoUsername").textContent = playerTwoUsername;
+
 //FUNCTION FOR DYPLAY LOADING SCREEN
 BABYLON.DefaultLoadingScreen.prototype.displayLoadingUI = function () {
     return;
@@ -884,16 +890,18 @@ const createScene = async function () {
             endgametrack.play();
 
             if (player.position.y < 80) {
-                textblockEnd2.text = "Player two win! (BLUE)"
+                textblockEnd2.text = playerTwoUsername + " win! (BLUE)"
                 animationEndGameOne.stop();
                 playerEnd.dispose();
                 hexagonEnd.dispose();
             } else {
-                textblockEnd2.text = "Player one win! (RED)"
+                textblockEnd2.text = playerOneUsername + " win! (RED)"
                 animationEndGameTwo.stop();
                 playerTwoEnd.dispose();
                 hexagonTwoEnd.dispose();
             }
+
+            document.getElementById("containerUsernames").style.display = "none";
 
             BabylonEngine.runRenderLoop(function () {
 

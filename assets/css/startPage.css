@@ -48,3 +48,11 @@ body {
   .audio {
     display: none;
   }
+
+  #playerOne {
+    color: red;
+  }
+
+  #playerTwo {
+    color: blue;
+  }
