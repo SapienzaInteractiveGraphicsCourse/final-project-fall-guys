@@ -533,7 +533,7 @@ const createScene = async function () {
     //IMPORTING OF THE MESHES
     let [playerScene2, playerSceneTwo2, hexagonScene2] = await Promise.all([
         BABYLON.SceneLoader.ImportMeshAsync("", Assets.models.player.Url, "player.glb", scene2),
-        BABYLON.SceneLoader.ImportMeshAsync("", Assets.models.player.Url, "playerTwo.glb", scene2),
+        BABYLON.SceneLoader.ImportMeshAsync("", Assets.models.player.Url, "PlayerTwo.glb", scene2),
         BABYLON.SceneLoader.ImportMeshAsync("", Assets.models.hexagon.Url, "hexagon.glb", scene2)
     ])
 
@@ -640,7 +640,7 @@ const createScene = async function () {
     //IMPORTING OF THE MESHES
     let [playerScene, playerSceneTwo, platformScene, hexagonScene, sphere1Scene, sphere2Scene] = await Promise.all([
         BABYLON.SceneLoader.ImportMeshAsync("", Assets.models.player.Url, "player.glb", scene),
-        BABYLON.SceneLoader.ImportMeshAsync("", Assets.models.player.Url, "playerTwo.glb", scene),
+        BABYLON.SceneLoader.ImportMeshAsync("", Assets.models.player.Url, "PlayerTwo.glb", scene),
         BABYLON.SceneLoader.ImportMeshAsync("", Assets.models.platform.Url, "platform.glb", scene),
         BABYLON.SceneLoader.ImportMeshAsync("", Assets.models.hexagon.Url, "hexagon.glb", scene),
         BABYLON.SceneLoader.ImportMeshAsync("", Assets.models.sphere.Url, "sphere1.glb", scene),
