@@ -586,12 +586,6 @@ const createScene = async function () {
     // Creates a basic Babylon Scene object
     const scene = new BABYLON.Scene(BabylonEngine);
 
-<<<<<<< HEAD
-=======
-
-
->>>>>>> d9d48402b663c44067b072d38f05bf7544ae9089
-
     //ENABLE PHYSICS
     scene.enablePhysics(new BABYLON.Vector3(0, -g, 0), physicsPlugin); // Enable physics with gravity 
 
@@ -636,17 +630,10 @@ const createScene = async function () {
     var optimizer = new BABYLON.SceneOptimizer(scene, options);
 
     //LIGHT CONFIGRATION
-<<<<<<< HEAD
+
    var light = new BABYLON.HemisphericLight("light", new BABYLON.Vector3(0, 1, 0), scene);
     
-    
-=======
-    var light = new BABYLON.HemisphericLight("light", new BABYLON.Vector3(0, 1, 0), scene);
-    var directionalLight = new BABYLON.DirectionalLight("dirLight", new BABYLON.Vector3(-1, -2, -1), scene);
-    directionalLight.position = new BABYLON.Vector3(20, 40, 20);
-    directionalLight.intensity = 0.5;
 
->>>>>>> d9d48402b663c44067b072d38f05bf7544ae9089
     //  SKYBOX
     var skybox = BABYLON.Mesh.CreateBox("skyBox", 5000.0, scene);
     var skyboxMaterial = configure_skybox_material(scene, skybox);
@@ -720,20 +707,6 @@ const createScene = async function () {
 
     camera.lockedTarget = playerScene["transformNodes"][5];
 
-<<<<<<< HEAD
-=======
-    //to fix
-    /*var shadowValue = localStorage.getItem('shadow') || "Off";
-    console.log(shadowValue);
-
-    if(shadowValue == "On"){
-        var shadowGenerator = new BABYLON.ShadowGenerator(2048, directionalLight);
-        shadowGenerator.getShadowMap().renderList.push(player);
-        shadowGenerator.usePoissonSampling = true;
-
-    }*/
-
->>>>>>> d9d48402b663c44067b072d38f05bf7544ae9089
 
     // Create custom collision boxes based on the defined dimensions and positions
     var playerCollisionBox = BABYLON.MeshBuilder.CreateBox("playerCollisionBox", { width: playerCollisionBoxDimensions.x, height: playerCollisionBoxDimensions.y, depth: playerCollisionBoxDimensions.z }, scene);
@@ -1281,7 +1254,6 @@ function configure_motion_blur(scene, camera) {
 
     }
 }
-<<<<<<< HEAD
 
 function configure_difficulty(diff){
     if(diff == "Easy"){
@@ -1306,10 +1278,7 @@ function configure_difficulty(diff){
     }
 }
 
-function goToSettings(){
-=======
 function goToSettings() {
->>>>>>> d9d48402b663c44067b072d38f05bf7544ae9089
     window.location.href = "options.html";
 }
 
