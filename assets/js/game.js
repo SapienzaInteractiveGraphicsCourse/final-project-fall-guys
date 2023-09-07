@@ -22,6 +22,9 @@ const Assets = {
         water: {
             Url: "assets/images/waterbump.png"
         },
+        platformTexture: {
+            Url: "assets/images/texture.png"
+        },
     },
     models: {
         player: {
@@ -78,8 +81,6 @@ var startRenderLoop = function (engine) {
     });
 }
 
-
-
 var createDefaultEngine = function () {
     return new BABYLON.Engine(canvas, true, {
         preserveDrawingBuffer: true,
@@ -120,7 +121,7 @@ let invicible = false;
 
 //STORING KEY PRESSED
 const keyStatus = { 87: false, 65: false, 83: false, 68: false };
-const INVICIBILITY_TIME = 7000;
+
 
 //SPEED OF MOVEMENT
 var movementAmount = 0.04; // Adjust the movement speed as needed
@@ -142,8 +143,15 @@ var targetPosition2 = new BABYLON.Vector3(-1, 8.6, -11.5);
 //STATIC DIMENSION OF HEXAGON COLLIDE BOX
 var hexagonCollisionBoxDimensions = new BABYLON.Vector3(2.0, 0.5, 1.75);
 
-//LISTENER FOR MIVEMENTS
+//DIFFICULTY
+var diff = localStorage.getItem("difficulty") || "Normal";
+var lifeHexagon = 0;
+var invicibilityTime = 0;
+var range_x_z_bomb = 0;
+
+//LISTENER FOR MOVEMENTS
 configure_movement_listeners();
+
 
 function rotateBody(chest, torso, pelvis, direction) {
     // Define the quaternion animation
@@ -447,9 +455,11 @@ const createScene = async function () {
 
     // Create a hemispheric light
     var hemiLight = new BABYLON.HemisphericLight("hemiLight", new BABYLON.Vector3(0, 1, 0), scene2);
+   
 
     // Set the light's intensity
-    hemiLight.intensity = 0.5;
+    hemiLight.intensity = 0.7;
+   
 
     //  SKYBOX
     var skybox = BABYLON.Mesh.CreateBox("skyBox", 5000.0, scene2);
@@ -549,7 +559,8 @@ const createScene = async function () {
 
     // Detach the meshes from their parent nodes
     hexagonEnd = hexagonScene2["meshes"][0]._children[0];
-    hexagonEnd.material = generate_material_with_random_color(scene2, "HexagonEnd");
+    hexagonEnd.material = generate_material_with_random_color(scene2, "HexagonEnd",false);
+    //hexagonEnd.material = normalTexture(scene2,"HexagongEnd");
     hexagonEnd.parent = null;
 
     // Create the hexagon mesh
@@ -572,8 +583,6 @@ const createScene = async function () {
 
     // Creates a basic Babylon Scene object
     const scene = new BABYLON.Scene(BabylonEngine);
-
-    
 
 
     //ENABLE PHYSICS
@@ -609,6 +618,9 @@ const createScene = async function () {
     //MOTION BLUR CONFIGURATION
     configure_motion_blur(scene,camera);
 
+    //DIFFICULTY CONFIGURATION
+    configure_difficulty(diff);
+
     //VOLUME
     var volume = localStorage.getItem('volume');
     BABYLON.Engine.audioEngine.setGlobalVolume(volume/100);
@@ -617,11 +629,9 @@ const createScene = async function () {
     var optimizer = new BABYLON.SceneOptimizer(scene, options);
 
     //LIGHT CONFIGRATION
-    var light = new BABYLON.HemisphericLight("light", new BABYLON.Vector3(0, 1, 0), scene);
-    var directionalLight = new BABYLON.DirectionalLight("dirLight", new BABYLON.Vector3(-1, -2, -1), scene);
-	directionalLight.position = new BABYLON.Vector3(20, 40, 20);
-	directionalLight.intensity = 0.5;
-   
+   var light = new BABYLON.HemisphericLight("light", new BABYLON.Vector3(0, 1, 0), scene);
+    
+    
     //  SKYBOX
     var skybox = BABYLON.Mesh.CreateBox("skyBox", 5000.0, scene);
     var skyboxMaterial = configure_skybox_material(scene, skybox);
@@ -649,7 +659,9 @@ const createScene = async function () {
     //CREATING HEXAGONS AND COLLIDING BOXING FOR EACH
     for (var i = 0; i < exagons.length; i++) {
         exagons[i].material = generate_material_with_random_color(scene, "Hexagon_" + i + "_platform_0");
-        create_collision_box(exagons[i], scene, "HexagonCollisionBox_" + i + "_platform_0", 0);
+        //exagons[i].material = normalTexture(scene, "Hexagon_" + i + "_platform_0",scene);
+        create_collision_box(exagons[i], scene, "HexagonCollisionBox_" + i + "_platform_0", 0,lifeHexagon);
+        
     };
 
     platform.position.y += 100;
@@ -663,7 +675,8 @@ const createScene = async function () {
         //CREATING HEXAGONS AND COLLIDING BOXING FOR EACH
         for (var j = 0; j < clonedExagons.length; j++) {
             clonedExagons[j].material = generate_material_with_random_color(scene, "Hexagon_" + j + "_platform_" + i);
-            create_collision_box(clonedExagons[j], scene, "HexagonCollisionBox_" + j + "_platform_" + i, i);
+            //clonedExagons[j].material = normalTexture(scene,"Hexagon_" + j + "_platform_" + i);
+            create_collision_box(clonedExagons[j], scene, "HexagonCollisionBox_" + j + "_platform_" + i, i, lifeHexagon);
         }
 
         clonedPlatform.position.y += 10 * i;
@@ -673,10 +686,12 @@ const createScene = async function () {
             hexagonCollisionBox.position.copyFrom(clonedExagons[j].position);
         }
     }
+    
 
     // Detach the meshes from their parent nodes
     hexagon = hexagonScene["meshes"][0]._children[0];
-    hexagon.material = generate_material_with_random_color(scene, "Hexagon");
+    hexagon.material = generate_material_with_random_color(scene, "Hexagon"); 
+    //hexagon.material = normalTexture(scene,"Hexagon");
     hexagon.parent = null;
 
     // Set the position of the hexagon and player to the same vector
@@ -690,17 +705,6 @@ const createScene = async function () {
 
     camera.lockedTarget = playerScene["transformNodes"][5];
 
-    //to fix
-    /*var shadowValue = localStorage.getItem('shadow') || "Off";
-    console.log(shadowValue);
-
-    if(shadowValue == "On"){
-        var shadowGenerator = new BABYLON.ShadowGenerator(2048, directionalLight);
-	    shadowGenerator.getShadowMap().renderList.push(player);
-	    shadowGenerator.usePoissonSampling = true;
-
-    }*/
-    
 
     // Create custom collision boxes based on the defined dimensions and positions
     var playerCollisionBox = BABYLON.MeshBuilder.CreateBox("playerCollisionBox", { width: playerCollisionBoxDimensions.x, height: playerCollisionBoxDimensions.y, depth: playerCollisionBoxDimensions.z }, scene);
@@ -929,11 +933,11 @@ const createScene = async function () {
                             setTimeout(endSphereSound1, 1000); // Call after 2 seconds
                             invicible = true;
                             bubbleSphere.isVisible = true;
-                            setTimeout(finishInvicibility, INVICIBILITY_TIME); // Call after 2 seconds
+                            setTimeout(finishInvicibility, invicibilityTime); // Call after 2 seconds
                         } else {
                             sphere2Sound.play();
                             setTimeout(endSphereSound2, 2000); // Call after 2 seconds
-                            player.physicsImpostor.setLinearVelocity(new BABYLON.Vector3(Math.random() * 40 - 20, Math.ceil(Math.abs(currentVelocity.y)) * 12, Math.random() * 40 - 20));
+                            player.physicsImpostor.setLinearVelocity(new BABYLON.Vector3(Math.random() * 700 - 20, Math.ceil(Math.abs(currentVelocity.y)) * 12, Math.random() * 700 - 20));
                         }
                     }
                 }
@@ -1062,15 +1066,27 @@ function finishInvicibility() {
     invicible = false;
 }
 
+function normalTexture(scene,name){
+    var mat = new BABYLON.StandardMaterial(name);
+    mat.diffuseTexture =new BABYLON.Texture(Assets.textures.platformTexture.Url, scene); 
+
+    return mat;
+}
+
 //GENERATE A MATERIAL FOR HEXAGON WITH RANDOM COLOR
 function generate_material_with_random_color(scene, name) {
+   
     var mat = new BABYLON.StandardMaterial(name, scene);
+    
     mat.diffuseColor = new BABYLON.Color3(1, 0.5, 0);
     mat.specularColor = new BABYLON.Color3(0.5, 0.6, 0.87);
     mat.emissiveColor = new BABYLON.Color3.FromHexString(generateRandomColor()).toLinearSpace();
     mat.ambientColor = new BABYLON.Color3(0.23, 0.98, 0.53);
+    
+
     return mat;
 }
+
 
 //SKYBOX CONFIGURATION
 function configure_skybox_material(scene, skybox) {
@@ -1149,8 +1165,9 @@ function configure_water_material(scene, skybox, waterMesh) {
 }
 
 //HEXAGON COLLISION BOX
-function create_collision_box(hexagon, scene, name, platformLevel) {
+function create_collision_box(hexagon, scene, name, platformLevel,lifeHexagon) {
 
+    
     var boundingInfo = hexagon.getBoundingInfo();
     var renderingPosition = boundingInfo.boundingBox.centerWorld;
 
@@ -1185,9 +1202,7 @@ function create_collision_box(hexagon, scene, name, platformLevel) {
         spheresMap.push([sphere, spheresAnimation(sphere)]);
     }
 
-
-    hexagonsMap.push([hexagon, hexagonCollisionBox, false, 60, sphere, type]);
-
+    hexagonsMap.push([hexagon, hexagonCollisionBox, false, lifeHexagon, sphere, type]);
 }
 
 function add_physic(scene) {
@@ -1237,6 +1252,30 @@ function configure_motion_blur(scene,camera){
 
     }
 }
+
+function configure_difficulty(diff){
+    if(diff == "Easy"){
+        lifeHexagon = 90;
+        invicibilityTime = 10000;
+        range_x_z_bomb = 40;
+    }
+    else if(diff == "Normal"){
+        lifeHexagon = 60;
+        invicibilityTime = 5000;
+        range_x_z_bomb = 300;
+    }
+    else if(diff == "Advanced"){
+        lifeHexagon=30;
+        invicibilityTime = 1000
+        range_x_z_bomb = 700;
+    }
+    else{
+        lifeHexagon = 60;
+        invicibilityTime = 5000;
+        range_x_z_bomb = 300;
+    }
+}
+
 function goToSettings(){
     window.location.href = "options.html";
 }

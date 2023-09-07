@@ -61,38 +61,39 @@ function changeMotionOn(){
         document.getElementById('motionBlur').innerHTML = "Off";
     }
 }
-function shadowOff(){
-    shadow = document.getElementById('shadow').innerHTML;
-    if (shadow == "On"){
-        document.getElementById('shadow').innerHTML = "Off";
+function textureOff(){
+    texture = document.getElementById('texture').innerHTML;
+    if (texture == "On"){
+        document.getElementById('texture').innerHTML = "Off";
     }
 }
 
-function shadowOn(){
-    shadow = document.getElementById('shadow').innerHTML;
-    if (shadow == "Off"){
-        document.getElementById('shadow').innerHTML = "On";
+function textureOn(){
+    texture = document.getElementById('texture').innerHTML;
+    if (texture == "Off"){
+        document.getElementById('texture').innerHTML = "On";
         }
 }
 
 function getBack(){
-    window.location.href = "index.html";
-    
+    window.location.href = "index.html";    
 }
 
 
 function saveSettings(){
+    localStorage.setItem("difficulty", document.getElementById('difficulty').innerHTML)
     localStorage.setItem("maps", document.getElementById('maps').innerHTML);
     localStorage.setItem("motion_blur", document.getElementById('motionBlur').innerHTML);
-    localStorage.setItem("shadow", document.getElementById('shadow').innerHTML);
+    localStorage.setItem("texture", document.getElementById('texture').innerHTML);
     localStorage.setItem("volume", document.getElementById("volume").value);
     window.location.href = "index.html";
 }
 
 function resetSettings(){
+    localStorage.setItem("difficulty", "Normal");
     localStorage.setItem("maps", "Map-1");
     localStorage.setItem("motion_blur", "On");
-    localStorage.setItem("shadow", "Off");
+    localStorage.setItem("texture", "Off");
     localStorage.setItem("volume", 0.5);
     window.location.href = "index.html";
 }

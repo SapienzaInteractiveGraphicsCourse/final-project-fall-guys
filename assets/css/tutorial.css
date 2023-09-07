@@ -75,8 +75,8 @@ h1{
 .butt{
  position: absolute;
  font-size: 40px;
- margin-right: 1300px;
- margin-bottom: 540px;
+ left: 40px;
+ top: 50px;
  background-color: transparent;
  border: none;
  
