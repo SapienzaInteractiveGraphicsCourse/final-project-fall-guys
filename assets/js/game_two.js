@@ -44,6 +44,12 @@ const Assets = {
     }
 };
 
+const playerOneUsername = localStorage.getItem("playerOne") || "Player One";
+const playerTwoUsername = localStorage.getItem("playerTwo") || "Player Two";
+
+document.getElementById("playerOneUsername").textContent = playerOneUsername;
+document.getElementById("playerTwoUsername").textContent = playerTwoUsername;
+
 //FUNCTION FOR DYPLAY LOADING SCREEN
 BABYLON.DefaultLoadingScreen.prototype.displayLoadingUI = function () {
     return;
@@ -527,7 +533,7 @@ const createScene = async function () {
     //IMPORTING OF THE MESHES
     let [playerScene2, playerSceneTwo2, hexagonScene2] = await Promise.all([
         BABYLON.SceneLoader.ImportMeshAsync("", Assets.models.player.Url, "player.glb", scene2),
-        BABYLON.SceneLoader.ImportMeshAsync("", Assets.models.player.Url, "playerTwo.glb", scene2),
+        BABYLON.SceneLoader.ImportMeshAsync("", Assets.models.player.Url, "PlayerTwo.glb", scene2),
         BABYLON.SceneLoader.ImportMeshAsync("", Assets.models.hexagon.Url, "hexagon.glb", scene2)
     ])
 
@@ -634,7 +640,7 @@ const createScene = async function () {
     //IMPORTING OF THE MESHES
     let [playerScene, playerSceneTwo, platformScene, hexagonScene, sphere1Scene, sphere2Scene] = await Promise.all([
         BABYLON.SceneLoader.ImportMeshAsync("", Assets.models.player.Url, "player.glb", scene),
-        BABYLON.SceneLoader.ImportMeshAsync("", Assets.models.player.Url, "playerTwo.glb", scene),
+        BABYLON.SceneLoader.ImportMeshAsync("", Assets.models.player.Url, "PlayerTwo.glb", scene),
         BABYLON.SceneLoader.ImportMeshAsync("", Assets.models.platform.Url, "platform.glb", scene),
         BABYLON.SceneLoader.ImportMeshAsync("", Assets.models.hexagon.Url, "hexagon.glb", scene),
         BABYLON.SceneLoader.ImportMeshAsync("", Assets.models.sphere.Url, "sphere1.glb", scene),
@@ -884,16 +890,18 @@ const createScene = async function () {
             endgametrack.play();
 
             if (player.position.y < 80) {
-                textblockEnd2.text = "Player two win! (BLUE)"
+                textblockEnd2.text = playerTwoUsername + " win! (BLUE)"
                 animationEndGameOne.stop();
                 playerEnd.dispose();
                 hexagonEnd.dispose();
             } else {
-                textblockEnd2.text = "Player one win! (RED)"
+                textblockEnd2.text = playerOneUsername + " win! (RED)"
                 animationEndGameTwo.stop();
                 playerTwoEnd.dispose();
                 hexagonTwoEnd.dispose();
             }
+
+            document.getElementById("containerUsernames").style.display = "none";
 
             BabylonEngine.runRenderLoop(function () {
 

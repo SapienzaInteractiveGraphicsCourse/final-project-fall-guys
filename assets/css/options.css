@@ -34,6 +34,10 @@ h1{
           
     }
 
+input {
+    margin-left: 1rem;
+}
+
 .settingImage {
     display: flex;
     flex-direction: row;

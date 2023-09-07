@@ -59,6 +59,8 @@ const Assets = {
     }
 };
 
+const playerUsername = localStorage.getItem("playerOne") || "Player One";
+
 //FUNCTION FOR DYPLAY LOADING SCREEN
 BABYLON.DefaultLoadingScreen.prototype.displayLoadingUI = function () {
     return;
@@ -77,7 +79,7 @@ var startRenderLoop = function (engine) {
             divFps.innerHTML = engine.getFps().toFixed() + " fps";
             sceneToRender.render();
         }
-        
+
     });
 }
 
@@ -464,7 +466,7 @@ const createScene = async function () {
     //  SKYBOX
     var skybox = BABYLON.Mesh.CreateBox("skyBox", 5000.0, scene2);
     var skyboxMaterial = configure_skybox_material(scene2, skybox);
-   
+
 
     var advancedTextureEnd = BABYLON.GUI.AdvancedDynamicTexture.CreateFullscreenUI("UI");
 
@@ -584,6 +586,11 @@ const createScene = async function () {
     // Creates a basic Babylon Scene object
     const scene = new BABYLON.Scene(BabylonEngine);
 
+<<<<<<< HEAD
+=======
+
+
+>>>>>>> d9d48402b663c44067b072d38f05bf7544ae9089
 
     //ENABLE PHYSICS
     scene.enablePhysics(new BABYLON.Vector3(0, -g, 0), physicsPlugin); // Enable physics with gravity 
@@ -616,22 +623,30 @@ const createScene = async function () {
     const camera = configure_camera(scene);
 
     //MOTION BLUR CONFIGURATION
-    configure_motion_blur(scene,camera);
+    configure_motion_blur(scene, camera);
 
     //DIFFICULTY CONFIGURATION
     configure_difficulty(diff);
 
     //VOLUME
     var volume = localStorage.getItem('volume');
-    BABYLON.Engine.audioEngine.setGlobalVolume(volume/100);
+    BABYLON.Engine.audioEngine.setGlobalVolume(volume / 100);
 
     // Optimizer
     var optimizer = new BABYLON.SceneOptimizer(scene, options);
 
     //LIGHT CONFIGRATION
+<<<<<<< HEAD
    var light = new BABYLON.HemisphericLight("light", new BABYLON.Vector3(0, 1, 0), scene);
     
     
+=======
+    var light = new BABYLON.HemisphericLight("light", new BABYLON.Vector3(0, 1, 0), scene);
+    var directionalLight = new BABYLON.DirectionalLight("dirLight", new BABYLON.Vector3(-1, -2, -1), scene);
+    directionalLight.position = new BABYLON.Vector3(20, 40, 20);
+    directionalLight.intensity = 0.5;
+
+>>>>>>> d9d48402b663c44067b072d38f05bf7544ae9089
     //  SKYBOX
     var skybox = BABYLON.Mesh.CreateBox("skyBox", 5000.0, scene);
     var skyboxMaterial = configure_skybox_material(scene, skybox);
@@ -705,6 +720,20 @@ const createScene = async function () {
 
     camera.lockedTarget = playerScene["transformNodes"][5];
 
+<<<<<<< HEAD
+=======
+    //to fix
+    /*var shadowValue = localStorage.getItem('shadow') || "Off";
+    console.log(shadowValue);
+
+    if(shadowValue == "On"){
+        var shadowGenerator = new BABYLON.ShadowGenerator(2048, directionalLight);
+        shadowGenerator.getShadowMap().renderList.push(player);
+        shadowGenerator.usePoissonSampling = true;
+
+    }*/
+
+>>>>>>> d9d48402b663c44067b072d38f05bf7544ae9089
 
     // Create custom collision boxes based on the defined dimensions and positions
     var playerCollisionBox = BABYLON.MeshBuilder.CreateBox("playerCollisionBox", { width: playerCollisionBoxDimensions.x, height: playerCollisionBoxDimensions.y, depth: playerCollisionBoxDimensions.z }, scene);
@@ -837,7 +866,7 @@ const createScene = async function () {
         var elapsedTime = (performance.now() - startTime) / 1000;
         var minutes = Math.floor(elapsedTime / 60);
         var seconds = Math.floor(elapsedTime % 60);
-        var timeString = "Time survived: ";
+        var timeString = playerUsername + " survived: ";
         if (minutes > 0) {
             timeString += minutes + " minute" + (minutes > 1 ? "s" : "") + " ";
         }
@@ -880,7 +909,7 @@ const createScene = async function () {
             localStorage.setItem("score_one_player", timeString);
 
 
-            textblockEnd2.text = "Your score: " + timeString;
+            textblockEnd2.text = playerUsername + " score: " + timeString;
 
             // Compare the time values in seconds
             var currentTimeInSeconds = convertTimeStringToSeconds(timeString);
@@ -1092,15 +1121,15 @@ function generate_material_with_random_color(scene, name) {
 function configure_skybox_material(scene, skybox) {
     var maps = localStorage.getItem('maps');
     var skyboxMaterial = new BABYLON.StandardMaterial("skyBox", scene);
-    if (maps == "Map-1"){
+    if (maps == "Map-1") {
         skyboxMaterial.reflectionTexture = new BABYLON.CubeTexture(Assets.textures.sky.Url, scene);
-    }else if(maps == "Map-2"){
+    } else if (maps == "Map-2") {
         skyboxMaterial.reflectionTexture = new BABYLON.CubeTexture(Assets.textures.sky1.Url, scene);
-    }else if(maps == "Map-3"){
+    } else if (maps == "Map-3") {
         skyboxMaterial.reflectionTexture = new BABYLON.CubeTexture(Assets.textures.sky2.Url, scene);
-    }else if(maps == "Map-4"){
+    } else if (maps == "Map-4") {
         skyboxMaterial.reflectionTexture = new BABYLON.CubeTexture(Assets.textures.sky3.Url, scene);
-    }else if(maps == "Map-5"){
+    } else if (maps == "Map-5") {
         skyboxMaterial.reflectionTexture = new BABYLON.CubeTexture(Assets.textures.sky4.Url, scene);
     }
     skyboxMaterial.backFaceCulling = false;
@@ -1138,7 +1167,7 @@ function create_end_text(text, element) {
 
 function create_time_text() {
     var timerText = new BABYLON.GUI.TextBlock();
-    timerText.text = "Time survived: 0 seconds";
+    timerText.text = playerUsername + " survived: 0 seconds";
     timerText.height = "100px";
     timerText.color = "white";
     timerText.fontFamily = "Comic Sans MS"; // Use the desired font family
@@ -1233,16 +1262,16 @@ function configure_camera(scene) {
     return camera;
 }
 //CONFIGURATION OF MOTION BLUR
-function configure_motion_blur(scene,camera){
-        
+function configure_motion_blur(scene, camera) {
+
     //CHECK MOTION BLUR
-    var mbValue = localStorage.getItem("motion_blur")|| "Off";
+    var mbValue = localStorage.getItem("motion_blur") || "Off";
     console.log(mbValue);
 
-    if(mbValue =="On"){
+    if (mbValue == "On") {
         var motionBlur = new BABYLON.MotionBlurPostProcess(
             'motionBlur', // name
-             scene, // scene
+            scene, // scene
             1.0, // motion blur strength
             camera // camera
         );
@@ -1252,6 +1281,7 @@ function configure_motion_blur(scene,camera){
 
     }
 }
+<<<<<<< HEAD
 
 function configure_difficulty(diff){
     if(diff == "Easy"){
@@ -1277,12 +1307,15 @@ function configure_difficulty(diff){
 }
 
 function goToSettings(){
+=======
+function goToSettings() {
+>>>>>>> d9d48402b663c44067b072d38f05bf7544ae9089
     window.location.href = "options.html";
 }
 
 
 window.initFunction = async function () {
-    
+
     var asyncEngineCreation = async function () {
         try {
             return createDefaultEngine();
@@ -1297,13 +1330,13 @@ window.initFunction = async function () {
     startRenderLoop(BabylonEngine);
     window.scene = await createScene();
 
-    
+
 };
 initFunction().then(() => {
     sceneToRender = scene
 });
 
-   
+
 // Watch for browser/canvas resize events
 window.addEventListener("resize", function () {
     BabylonEngine.resize();

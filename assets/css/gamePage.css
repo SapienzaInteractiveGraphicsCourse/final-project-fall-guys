@@ -64,6 +64,32 @@ html, body {
   animation: spinlogo 2s linear infinite;
 }
 
+.username-container {
+  position: absolute;
+  top: 15px;
+  right: 25%;
+  width: 50%;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  text-align: center;
+}
+
+.username {
+  font-size: 40px;
+  font-weight: bold;
+  font-family: 'Comic Sans MS', cursive; /* Choose a cartoon-style font */
+  text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.5); /* Add a shadow effect */
+}
+
+#playerOneUsername {
+  color: red;
+}
+
+#playerTwoUsername {
+color: blue;
+}
+
 #fps {
   position: absolute;
   background-color: #9a84be;
