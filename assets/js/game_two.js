@@ -18,7 +18,19 @@ const Assets = {
         platform: {
             Url: "assets/static/models/platform/"
         },
+        platform1: {
+            Url: "assets/static/models/platform/"
+        },
+        platform2: {
+            Url: "assets/static/models/platform/"
+        },
         hexagon: {
+            Url: "assets/static/models/platform/"
+        },
+        hexagon1: {
+            Url: "assets/static/models/platform/"
+        },
+        hexagon2: {
             Url: "assets/static/models/platform/"
         },
         sphere: {
@@ -142,6 +154,20 @@ var targetPositionTwo2 = new BABYLON.Vector3(-4, 8.6, -13.5);
 
 //STATIC DIMENSION OF HEXAGON COLLIDE BOX
 var hexagonCollisionBoxDimensions = new BABYLON.Vector3(2.0, 0.5, 1.75);
+
+//DIFFICULTY
+var diff = localStorage.getItem("difficulty") || "Normal";
+var lifeHexagon = 0;
+var invicibilityTime = 0;
+var range_x_z_bomb = 0;
+
+//TEXTURE
+var texture = localStorage.getItem("texture") || "Color";
+console.log(texture);
+var model = "";
+var modelName = "";
+var modelPlatform = "";
+var modelPlatformName="";
 
 //LISTENER FOR MIVEMENTS
 configure_movement_listeners();
@@ -611,6 +637,7 @@ const createScene = async function () {
 
     const cameraSecond = configure_camera(scene, "Second");
 
+
     scene.activeCameras.push(cameraFirst);
     scene.activeCameras.push(cameraSecond);
 
@@ -621,6 +648,18 @@ const createScene = async function () {
     // Set the viewports on the cameras
     cameraFirst.viewport = viewport1;
     cameraSecond.viewport = viewport2;
+
+   
+    /* //MOTION BLUR CONFIGURATION
+     configure_motion_blur(scene,cameraFirst);
+     configure_motion_blur(scene,cameraSecond);*/
+    
+
+    //DIFFICULTY CONFIGURATION
+    configure_difficulty(diff);
+
+    //TEXTURE CONFIGURATION
+    configure_texture_platform(texture);
 
 
     // Optimizer
@@ -1257,6 +1296,78 @@ function configure_camera(scene, name) {
     camera.cameraAcceleration = .02;
     camera.maxCameraSpeed = 1;
     return camera;
+}
+//CONFIGURATION OF MOTION BLUR
+function configure_motion_blur(scene, camera) {
+
+    //CHECK MOTION BLUR
+    var mbValue = localStorage.getItem("motion_blur") || "Off";
+    console.log(mbValue);
+
+    if (mbValue == "On") {
+        var motionBlur = new BABYLON.MotionBlurPostProcess(
+            'motionBlur', // name
+            scene, // scene
+            1.0, // motion blur strength
+            camera // camera
+        );
+
+        motionBlur.motionStrength = 2;
+        motionBlur.motionBlurSamples = 16;
+
+    }
+}
+
+//CONFIGURATION DIFFICULTY
+function configure_difficulty(diff){
+    if(diff == "Easy"){
+        lifeHexagon = 90;
+        invicibilityTime = 10000;
+        range_x_z_bomb = 40;
+    }
+    else if(diff == "Normal"){
+        lifeHexagon = 60;
+        invicibilityTime = 5000;
+        range_x_z_bomb = 300;
+    }
+    else if(diff == "Advanced"){
+        lifeHexagon=30;
+        invicibilityTime = 1000
+        range_x_z_bomb = 700;
+    }
+    else{
+        lifeHexagon = 60;
+        invicibilityTime = 5000;
+        range_x_z_bomb = 300;
+    }
+}
+
+//FUNCTION TO CONFIGURE THE TEXTURE PLATFORM
+function configure_texture_platform(texture){
+    
+    if(texture == "Wood"){
+        model = Assets.models.hexagon1.Url;
+        modelName = "hexagon1.glb";
+        modelPlatform = Assets.models.platform1.Url ;
+        modelPlatformName = "platform1.glb";
+
+    }
+    else if(texture == "Stone"){
+        model = Assets.models.hexagon2.Url;
+        modelName = "hexagon2.glb";
+        modelPlatform = Assets.models.platform2.Url ;
+        modelPlatformName = "platform2.glb";
+    }
+    else{
+        model = Assets.models.hexagon.Url;
+        modelName = "hexagon.glb";
+        modelPlatform = Assets.models.platform.Url ;
+        modelPlatformName = "platform.glb";
+    }
+}
+
+function goToSettings() {
+    window.location.href = "options.html";
 }
 
 window.initFunction = async function () {

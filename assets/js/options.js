@@ -78,16 +78,22 @@ function changeMotionOn() {
 }
 function textureOff(){
     texture = document.getElementById('texture').innerHTML;
-    if (texture == "On"){
-        document.getElementById('texture').innerHTML = "Off";
+    if (texture == "Stone"){
+        document.getElementById('texture').innerHTML = "Wood";
+    }
+    if (texture == "Wood"){
+        document.getElementById('texture').innerHTML = "Color";
     }
 }
 
 function textureOn(){
     texture = document.getElementById('texture').innerHTML;
-    if (texture == "Off"){
-        document.getElementById('texture').innerHTML = "On";
+    if (texture == "Color"){
+        document.getElementById('texture').innerHTML = "Wood";
         }
+    if (texture == "Wood"){
+        document.getElementById('texture').innerHTML = "Stone";
+         }
 }
 
 function getBack(){
@@ -129,7 +135,7 @@ function resetSettings() {
     localStorage.setItem("difficulty", "Normal");
     localStorage.setItem("maps", "Map-1");
     localStorage.setItem("motion_blur", "On");
-    localStorage.setItem("texture", "Off");
+    localStorage.setItem("texture", "Color");
     localStorage.setItem("volume", 0.5);
     window.location.href = "index.html";
 }

@@ -22,9 +22,6 @@ const Assets = {
         water: {
             Url: "assets/images/waterbump.png"
         },
-        platformTexture: {
-            Url: "assets/images/texture.png"
-        },
     },
     models: {
         player: {
@@ -33,7 +30,19 @@ const Assets = {
         platform: {
             Url: "assets/static/models/platform/"
         },
+        platform1: {
+            Url: "assets/static/models/platform/"
+        },
+        platform2: {
+            Url: "assets/static/models/platform/"
+        },
         hexagon: {
+            Url: "assets/static/models/platform/"
+        },
+        hexagon1: {
+            Url: "assets/static/models/platform/"
+        },
+        hexagon2: {
             Url: "assets/static/models/platform/"
         },
         sphere: {
@@ -150,6 +159,14 @@ var diff = localStorage.getItem("difficulty") || "Normal";
 var lifeHexagon = 0;
 var invicibilityTime = 0;
 var range_x_z_bomb = 0;
+
+//TEXTURE
+var texture = localStorage.getItem("texture") || "Color";
+console.log(texture);
+var model = "";
+var modelName = "";
+var modelPlatform = "";
+var modelPlatformName="";
 
 //LISTENER FOR MOVEMENTS
 configure_movement_listeners();
@@ -460,7 +477,7 @@ const createScene = async function () {
    
 
     // Set the light's intensity
-    hemiLight.intensity = 0.7;
+    hemiLight.intensity = 0.5;
    
 
     //  SKYBOX
@@ -561,8 +578,10 @@ const createScene = async function () {
 
     // Detach the meshes from their parent nodes
     hexagonEnd = hexagonScene2["meshes"][0]._children[0];
-    hexagonEnd.material = generate_material_with_random_color(scene2, "HexagonEnd",false);
-    //hexagonEnd.material = normalTexture(scene2,"HexagongEnd");
+    if(texture == "Color"){
+        hexagonEnd.material = generate_material_with_random_color(scene2, "HexagonEnd",false);
+    }
+  
     hexagonEnd.parent = null;
 
     // Create the hexagon mesh
@@ -622,6 +641,9 @@ const createScene = async function () {
     //DIFFICULTY CONFIGURATION
     configure_difficulty(diff);
 
+    //TEXTURE CONFIGURATION
+    configure_texture_platform(texture);
+
     //VOLUME
     var volume = localStorage.getItem('volume');
     BABYLON.Engine.audioEngine.setGlobalVolume(volume / 100);
@@ -642,11 +664,13 @@ const createScene = async function () {
     var waterMesh = BABYLON.Mesh.CreateGround("waterMesh", 2048, 2048, 16, scene, false);
     var water = configure_water_material(scene, skybox, waterMesh);
 
+
+
     //IMPORTING OF THE MESHES
     let [playerScene, platformScene, hexagonScene, sphere1Scene, sphere2Scene] = await Promise.all([
         BABYLON.SceneLoader.ImportMeshAsync("", Assets.models.player.Url, "player.glb", scene),
-        BABYLON.SceneLoader.ImportMeshAsync("", Assets.models.platform.Url, "platform.glb", scene),
-        BABYLON.SceneLoader.ImportMeshAsync("", Assets.models.hexagon.Url, "hexagon.glb", scene),
+        BABYLON.SceneLoader.ImportMeshAsync("",modelPlatform, modelPlatformName, scene),
+        BABYLON.SceneLoader.ImportMeshAsync("", model, modelName, scene),
         BABYLON.SceneLoader.ImportMeshAsync("", Assets.models.sphere.Url, "sphere1.glb", scene),
         BABYLON.SceneLoader.ImportMeshAsync("", Assets.models.sphere.Url, "sphere2.glb", scene)
     ])
@@ -660,8 +684,11 @@ const createScene = async function () {
 
     //CREATING HEXAGONS AND COLLIDING BOXING FOR EACH
     for (var i = 0; i < exagons.length; i++) {
-        exagons[i].material = generate_material_with_random_color(scene, "Hexagon_" + i + "_platform_0");
-        //exagons[i].material = normalTexture(scene, "Hexagon_" + i + "_platform_0",scene);
+    
+        if(texture=="Color"){
+            exagons[i].material = generate_material_with_random_color(scene, "Hexagon_" + i + "_platform_0");
+        }
+    
         create_collision_box(exagons[i], scene, "HexagonCollisionBox_" + i + "_platform_0", 0,lifeHexagon);
         
     };
@@ -676,8 +703,9 @@ const createScene = async function () {
 
         //CREATING HEXAGONS AND COLLIDING BOXING FOR EACH
         for (var j = 0; j < clonedExagons.length; j++) {
-            clonedExagons[j].material = generate_material_with_random_color(scene, "Hexagon_" + j + "_platform_" + i);
-            //clonedExagons[j].material = normalTexture(scene,"Hexagon_" + j + "_platform_" + i);
+            if(texture == "Color"){
+                clonedExagons[j].material = generate_material_with_random_color(scene, "Hexagon_" + j + "_platform_" + i);
+            }
             create_collision_box(clonedExagons[j], scene, "HexagonCollisionBox_" + j + "_platform_" + i, i, lifeHexagon);
         }
 
@@ -692,8 +720,9 @@ const createScene = async function () {
 
     // Detach the meshes from their parent nodes
     hexagon = hexagonScene["meshes"][0]._children[0];
-    hexagon.material = generate_material_with_random_color(scene, "Hexagon"); 
-    //hexagon.material = normalTexture(scene,"Hexagon");
+    if(texture == "Color"){
+        hexagon.material = generate_material_with_random_color(scene, "Hexagon");
+    }
     hexagon.parent = null;
 
     // Set the position of the hexagon and player to the same vector
@@ -1033,7 +1062,13 @@ function hexagon_pressed(hexagon) {
 
     // Define the keyframes for the color animation
     var animationColor = new BABYLON.Animation("colorAnimation", "material.diffuseColor", BabylonEngine.getFps().toFixed(), BABYLON.Animation.ANIMATIONTYPE_COLOR3, BABYLON.Animation.ANIMATIONLOOPMODE_CONSTANT);
-    var initialColor = hexagon.material.diffuseColor.clone(); // Store the initial color of the hexagon material
+    
+    if(texture == "Color"){
+        var initialColor = hexagon.material.diffuseColor.clone(); // Store the initial color of the hexagon material
+    }else{
+        var initialColor = new BABYLON.Color3(1, 0, 0); 
+    }
+    
 
     animationColor.setKeys([
         { frame: 0, value: initialColor },
@@ -1068,12 +1103,6 @@ function finishInvicibility() {
     invicible = false;
 }
 
-function normalTexture(scene,name){
-    var mat = new BABYLON.StandardMaterial(name);
-    mat.diffuseTexture =new BABYLON.Texture(Assets.textures.platformTexture.Url, scene); 
-
-    return mat;
-}
 
 //GENERATE A MATERIAL FOR HEXAGON WITH RANDOM COLOR
 function generate_material_with_random_color(scene, name) {
@@ -1255,6 +1284,7 @@ function configure_motion_blur(scene, camera) {
     }
 }
 
+//CONFIGURATION DIFFICULTY
 function configure_difficulty(diff){
     if(diff == "Easy"){
         lifeHexagon = 90;
@@ -1275,6 +1305,30 @@ function configure_difficulty(diff){
         lifeHexagon = 60;
         invicibilityTime = 5000;
         range_x_z_bomb = 300;
+    }
+}
+
+//FUNCTION TO CONFIGURE THE TEXTURE PLATFORM
+function configure_texture_platform(texture){
+    
+    if(texture == "Wood"){
+        model = Assets.models.hexagon1.Url;
+        modelName = "hexagon1.glb";
+        modelPlatform = Assets.models.platform1.Url ;
+        modelPlatformName = "platform1.glb";
+
+    }
+    else if(texture == "Stone"){
+        model = Assets.models.hexagon2.Url;
+        modelName = "hexagon2.glb";
+        modelPlatform = Assets.models.platform2.Url ;
+        modelPlatformName = "platform2.glb";
+    }
+    else{
+        model = Assets.models.hexagon.Url;
+        modelName = "hexagon.glb";
+        modelPlatform = Assets.models.platform.Url ;
+        modelPlatformName = "platform.glb";
     }
 }
 
@@ -1422,9 +1476,12 @@ function endGameAnimation(player_scene) {
     var initialPositionLeftEye = leftEye['_position'];
     var initialPositionRightEye = rightEye['_position'];
     var initialPositionHexagon = hexagonEnd.position.clone();
-    var initialColorHexagon = hexagonEnd.material.diffuseColor.clone();
-
-
+    if(texture=="Color"){
+        var initialColorHexagon = hexagonEnd.material.diffuseColor.clone();
+    }else{
+        var initialColorHexagon = new BABYLON.Color3(1, 0, 0);
+    }
+    
     animationPositionHexagonEnd.setKeys([
         { frame: 0, value: initialPositionHexagon },
         { frame: 120, value: new BABYLON.Vector3(initialPositionHexagon.x, initialPositionHexagon.y - 0.06, initialPositionHexagon.z) },
