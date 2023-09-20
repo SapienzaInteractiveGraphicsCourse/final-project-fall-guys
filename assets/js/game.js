@@ -171,6 +171,9 @@ var modelPlatformName="";
 //LISTENER FOR MOVEMENTS
 configure_movement_listeners();
 
+//TEXTURE CONFIGURATION
+configure_texture_platform(texture);
+
 
 function rotateBody(chest, torso, pelvis, direction) {
     // Define the quaternion animation
@@ -573,7 +576,7 @@ const createScene = async function () {
     //IMPORTING OF THE MESHES
     let [playerScene2, hexagonScene2] = await Promise.all([
         BABYLON.SceneLoader.ImportMeshAsync("", Assets.models.player.Url, "player.glb", scene2),
-        BABYLON.SceneLoader.ImportMeshAsync("", Assets.models.hexagon.Url, "hexagon.glb", scene2)
+        BABYLON.SceneLoader.ImportMeshAsync("", model, modelName, scene2),
     ])
 
     // Detach the meshes from their parent nodes
@@ -641,8 +644,6 @@ const createScene = async function () {
     //DIFFICULTY CONFIGURATION
     configure_difficulty(diff);
 
-    //TEXTURE CONFIGURATION
-    configure_texture_platform(texture);
 
     //VOLUME
     var volume = localStorage.getItem('volume');
@@ -652,7 +653,6 @@ const createScene = async function () {
     var optimizer = new BABYLON.SceneOptimizer(scene, options);
 
     //LIGHT CONFIGRATION
-
    var light = new BABYLON.HemisphericLight("light", new BABYLON.Vector3(0, 1, 0), scene);
     
 
@@ -968,7 +968,7 @@ const createScene = async function () {
                         } else {
                             sphere2Sound.play();
                             setTimeout(endSphereSound2, 2000); // Call after 2 seconds
-                            player.physicsImpostor.setLinearVelocity(new BABYLON.Vector3(Math.random() * 700 - 20, Math.ceil(Math.abs(currentVelocity.y)) * 12, Math.random() * 700 - 20));
+                            player.physicsImpostor.setLinearVelocity(new BABYLON.Vector3(Math.random() * range_x_z_bomb - 20, Math.ceil(Math.abs(currentVelocity.y)) * 12, Math.random() * range_x_z_bomb - 20));
                         }
                     }
                 }

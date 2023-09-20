@@ -4,8 +4,20 @@ const Assets = {
         carpet: {
             Url: "assets/images/carpet.jpg"
         },
-        sky: {
+         sky: {
             Url: "assets/images/skybox/skybox.env"
+        },
+        sky1: {
+            Url: "assets/images/skybox/skybox1.env"
+        },
+        sky2: {
+            Url: "assets/images/skybox/skybox2.env"
+        },
+        sky3: {
+            Url: "assets/images/skybox/skybox3.env"
+        },
+        sky4: {
+            Url: "assets/images/skybox/skybox4.env"
         },
         water: {
             Url: "assets/images/waterbump.png"
@@ -127,7 +139,6 @@ let invicibleTwo = false;
 
 //STORING KEY PRESSED
 const keyStatus = { 87: false, 65: false, 83: false, 68: false, 16: false, 32: false, 37: false, 39: false, 40: false };
-const INVICIBILITY_TIME = 7000;
 
 //SPEED OF MOVEMENT
 var movementAmount = 0.04; // Adjust the movement speed as needed
@@ -171,6 +182,9 @@ var modelPlatformName="";
 
 //LISTENER FOR MIVEMENTS
 configure_movement_listeners();
+
+//TEXTURE CONFIGURATION
+configure_texture_platform(texture);
 
 
 function fallingAnimation(amountEndingFrame, selectedPlayer) {
@@ -560,12 +574,14 @@ const createScene = async function () {
     let [playerScene2, playerSceneTwo2, hexagonScene2] = await Promise.all([
         BABYLON.SceneLoader.ImportMeshAsync("", Assets.models.player.Url, "player.glb", scene2),
         BABYLON.SceneLoader.ImportMeshAsync("", Assets.models.player.Url, "PlayerTwo.glb", scene2),
-        BABYLON.SceneLoader.ImportMeshAsync("", Assets.models.hexagon.Url, "hexagon.glb", scene2)
+        BABYLON.SceneLoader.ImportMeshAsync("", model, modelName, scene2),
     ])
 
     // Detach the meshes from their parent nodes
     hexagonEnd = hexagonScene2["meshes"][0]._children[0];
-    hexagonEnd.material = generate_material_with_random_color(scene2, "HexagonEnd");
+    if(texture == "Color"){
+        hexagonEnd.material = generate_material_with_random_color(scene2, "HexagonEnd",false);
+    }
     hexagonEnd.parent = null;
 
 
@@ -634,33 +650,35 @@ const createScene = async function () {
 
 
     const cameraFirst = configure_camera(scene, "First");
+    // Create motion blur post-process
+    //configure_motion_blur(scene,cameraFirst);
 
     const cameraSecond = configure_camera(scene, "Second");
-
-
-    scene.activeCameras.push(cameraFirst);
-    scene.activeCameras.push(cameraSecond);
+    //configure_motion_blur(scene,cameraSecond);
 
     // Create two viewports
-    var viewport1 = new BABYLON.Viewport(0, 0, 0.5, 1);
-    var viewport2 = new BABYLON.Viewport(0.5, 0, 0.5, 1);
+    var viewport1 = new BABYLON.Viewport(0, 0, 0.5, 1); // Left half of the screen
+    var viewport2 = new BABYLON.Viewport(0.5, 0, 0.5, 1); // Right half of the screen
+
 
     // Set the viewports on the cameras
     cameraFirst.viewport = viewport1;
     cameraSecond.viewport = viewport2;
 
-   
-    /* //MOTION BLUR CONFIGURATION
-     configure_motion_blur(scene,cameraFirst);
-     configure_motion_blur(scene,cameraSecond);*/
+  
+    // Add the cameras to the active cameras list
+    scene.activeCameras.push(cameraFirst);
+    scene.activeCameras.push(cameraSecond);
+
     
 
+    
     //DIFFICULTY CONFIGURATION
     configure_difficulty(diff);
 
-    //TEXTURE CONFIGURATION
-    configure_texture_platform(texture);
-
+    //VOLUME
+    var volume = localStorage.getItem('volume');
+    BABYLON.Engine.audioEngine.setGlobalVolume(volume / 100);
 
     // Optimizer
     var optimizer = new BABYLON.SceneOptimizer(scene, options);
@@ -680,8 +698,8 @@ const createScene = async function () {
     let [playerScene, playerSceneTwo, platformScene, hexagonScene, sphere1Scene, sphere2Scene] = await Promise.all([
         BABYLON.SceneLoader.ImportMeshAsync("", Assets.models.player.Url, "player.glb", scene),
         BABYLON.SceneLoader.ImportMeshAsync("", Assets.models.player.Url, "PlayerTwo.glb", scene),
-        BABYLON.SceneLoader.ImportMeshAsync("", Assets.models.platform.Url, "platform.glb", scene),
-        BABYLON.SceneLoader.ImportMeshAsync("", Assets.models.hexagon.Url, "hexagon.glb", scene),
+        BABYLON.SceneLoader.ImportMeshAsync("",modelPlatform, modelPlatformName, scene),
+        BABYLON.SceneLoader.ImportMeshAsync("", model, modelName, scene),
         BABYLON.SceneLoader.ImportMeshAsync("", Assets.models.sphere.Url, "sphere1.glb", scene),
         BABYLON.SceneLoader.ImportMeshAsync("", Assets.models.sphere.Url, "sphere2.glb", scene)
     ])
@@ -695,8 +713,10 @@ const createScene = async function () {
 
     //CREATING HEXAGONS AND COLLIDING BOXING FOR EACH
     for (var i = 0; i < exagons.length; i++) {
-        exagons[i].material = generate_material_with_random_color(scene, "Hexagon_" + i + "_platform_0");
-        create_collision_box(exagons[i], scene, "HexagonCollisionBox_" + i + "_platform_0", 0);
+        if(texture == "Color"){
+            exagons[i].material = generate_material_with_random_color(scene, "Hexagon_" + i + "_platform_0");
+        }
+        create_collision_box(exagons[i], scene, "HexagonCollisionBox_" + i + "_platform_0", 0,lifeHexagon);
     };
 
     platform.position.y += 100;
@@ -709,8 +729,10 @@ const createScene = async function () {
 
         //CREATING HEXAGONS AND COLLIDING BOXING FOR EACH
         for (var j = 0; j < clonedExagons.length; j++) {
-            clonedExagons[j].material = generate_material_with_random_color(scene, "Hexagon_" + j + "_platform_" + i);
-            create_collision_box(clonedExagons[j], scene, "HexagonCollisionBox_" + j + "_platform_" + i, i);
+            if(texture == "Color"){
+                clonedExagons[j].material = generate_material_with_random_color(scene, "Hexagon_" + j + "_platform_" + i);
+            } 
+            create_collision_box(clonedExagons[j], scene, "HexagonCollisionBox_" + j + "_platform_" + i, i,lifeHexagon);
         }
 
         clonedPlatform.position.y += 10 * i;
@@ -723,7 +745,9 @@ const createScene = async function () {
 
     // Detach the meshes from their parent nodes
     hexagon = hexagonScene["meshes"][0]._children[0];
-    hexagon.material = generate_material_with_random_color(scene, "Hexagon");
+    if(texture == "Color"){
+        hexagon.material = generate_material_with_random_color(scene, "Hexagon");
+    }
     hexagon.parent = null;
 
 
@@ -732,7 +756,9 @@ const createScene = async function () {
 
 
     hexagonTwo = hexagon.clone("HexagonTwo");
-    hexagonTwo.material = generate_material_with_random_color(scene, "HexagonTwo");
+    if(texture == "Color"){
+        hexagonTwo.material = generate_material_with_random_color(scene, "HexagonTwo");
+    } 
     hexagonTwo.position.x += 3;
     hexagonTwo.position.z += 5;
 
@@ -981,11 +1007,11 @@ const createScene = async function () {
                                 setTimeout(endSphereSound1, 1000); // Call after 2 seconds
                                 invicible = true;
                                 bubbleSphere.isVisible = true;
-                                setTimeout(finishInvicibility, INVICIBILITY_TIME); // Call after 2 seconds
+                                setTimeout(finishInvicibility, invicibilityTime); // Call after 2 seconds
                             } else {
                                 sphere2Sound.play();
                                 setTimeout(endSphereSound2, 2000); // Call after 2 seconds
-                                player.physicsImpostor.setLinearVelocity(new BABYLON.Vector3(Math.random() * 40 - 20, Math.ceil(Math.abs(currentVelocity.y)) * 12, Math.random() * 40 - 20));
+                                player.physicsImpostor.setLinearVelocity(new BABYLON.Vector3(Math.random() * range_x_z_bomb - 20, Math.ceil(Math.abs(currentVelocity.y)) * 12, Math.random() * range_x_z_bomb - 20));
                             }
                         }
                     }
@@ -1128,7 +1154,12 @@ function hexagon_pressed(hexagon) {
 
     // Define the keyframes for the color animation
     var animationColor = new BABYLON.Animation("colorAnimation", "material.diffuseColor", BabylonEngine.getFps().toFixed(), BABYLON.Animation.ANIMATIONTYPE_COLOR3, BABYLON.Animation.ANIMATIONLOOPMODE_CONSTANT);
-    var initialColor = hexagon.material.diffuseColor.clone(); // Store the initial color of the hexagon material
+    if(texture == "Color"){
+        var initialColor = hexagon.material.diffuseColor.clone(); // Store the initial color of the hexagon material
+    }else{
+        var initialColor = new BABYLON.Color3(1, 0, 0); 
+    }
+   
 
     animationColor.setKeys([
         { frame: 0, value: initialColor },
@@ -1180,9 +1211,22 @@ function generate_material_with_random_color(scene, name) {
 
 //SKYBOX CONFIGURATION
 function configure_skybox_material(scene, skybox) {
+    var maps = localStorage.getItem('maps');
     var skyboxMaterial = new BABYLON.StandardMaterial("skyBox", scene);
+    if (maps == "Map-1") {
+        skyboxMaterial.reflectionTexture = new BABYLON.CubeTexture(Assets.textures.sky.Url, scene);
+    } else if (maps == "Map-2") {
+        skyboxMaterial.reflectionTexture = new BABYLON.CubeTexture(Assets.textures.sky1.Url, scene);
+    } else if (maps == "Map-3") {
+        skyboxMaterial.reflectionTexture = new BABYLON.CubeTexture(Assets.textures.sky2.Url, scene);
+    } else if (maps == "Map-4") {
+        skyboxMaterial.reflectionTexture = new BABYLON.CubeTexture(Assets.textures.sky3.Url, scene);
+    } else if (maps == "Map-5") {
+        skyboxMaterial.reflectionTexture = new BABYLON.CubeTexture(Assets.textures.sky4.Url, scene);
+    }else{
+        skyboxMaterial.reflectionTexture = new BABYLON.CubeTexture(Assets.textures.sky.Url, scene);
+    }
     skyboxMaterial.backFaceCulling = false;
-    skyboxMaterial.reflectionTexture = new BABYLON.CubeTexture(Assets.textures.sky.Url, scene);
     skyboxMaterial.reflectionTexture.coordinatesMode = BABYLON.Texture.SKYBOX_MODE;
     skyboxMaterial.diffuseColor = new BABYLON.Color3(0, 0, 0);
     skyboxMaterial.specularColor = new BABYLON.Color3(0, 0, 0);
@@ -1232,7 +1276,7 @@ function configure_water_material(scene, skybox, waterMesh) {
 }
 
 //HEXAGON COLLISION BOX
-function create_collision_box(hexagon, scene, name, platformLevel) {
+function create_collision_box(hexagon, scene, name, platformLevel,lifeHexagon) {
 
     var boundingInfo = hexagon.getBoundingInfo();
     var renderingPosition = boundingInfo.boundingBox.centerWorld;
@@ -1267,7 +1311,7 @@ function create_collision_box(hexagon, scene, name, platformLevel) {
         }
         spheresMap.push([sphere, spheresAnimation(sphere)]);
     }
-    hexagonsMap.push([hexagon, hexagonCollisionBox, false, 60, sphere, type]);
+    hexagonsMap.push([hexagon, hexagonCollisionBox, false, lifeHexagon, sphere, type]);
 
 }
 
@@ -1298,24 +1342,29 @@ function configure_camera(scene, name) {
     return camera;
 }
 //CONFIGURATION OF MOTION BLUR
-function configure_motion_blur(scene, camera) {
+function configure_motion_blur(scene,camera) {
+    
 
-    //CHECK MOTION BLUR
+   // CHECK MOTION BLUR
     var mbValue = localStorage.getItem("motion_blur") || "Off";
     console.log(mbValue);
 
-    if (mbValue == "On") {
-        var motionBlur = new BABYLON.MotionBlurPostProcess(
-            'motionBlur', // name
-            scene, // scene
-            1.0, // motion blur strength
-            camera // camera
-        );
+    if (mbValue === "On") {
+
+        
+        // Create the motion blur post-process
+            var motionBlur = new BABYLON.MotionBlurPostProcess(
+                'motionBlur', // name
+                scene, // scene
+                1.0, // motion blur strength
+                camera, // No specific camera
+            );
 
         motionBlur.motionStrength = 2;
         motionBlur.motionBlurSamples = 16;
-
+            
     }
+        
 }
 
 //CONFIGURATION DIFFICULTY
@@ -1523,7 +1572,11 @@ function endGameAnimation(player_scene, selectedPlayer) {
         var kneeRight = playerEndBones[33]
 
         var initialPositionHexagon = hexagonEnd.position.clone();
-        var initialColorHexagon = hexagonEnd.material.diffuseColor.clone();
+        if(texture=="Color"){
+            var initialColorHexagon = hexagonEnd.material.diffuseColor.clone();
+        }else{
+            var initialColorHexagon = new BABYLON.Color3(1, 0, 0);
+        }
 
     } else {
 
@@ -1539,7 +1592,11 @@ function endGameAnimation(player_scene, selectedPlayer) {
         var kneeRight = transformNodes[73]
 
         var initialPositionHexagon = hexagonTwoEnd.position.clone();
-        var initialColorHexagon = hexagonTwoEnd.material.diffuseColor.clone();
+        if(texture=="Color"){
+            var initialColorHexagon = hexagonEnd.material.diffuseColor.clone();
+        }else{
+            var initialColorHexagon = new BABYLON.Color3(1, 0, 0);
+        }
     }
 
     var animationShoulderLeftEnd = new BABYLON.Animation("EndGameAnimation_shoulderLeft", "rotation", 240, BABYLON.Animation.ANIMATIONTYPE_VECTOR3, BABYLON.Animation.ANIMATIONLOOPMODE_CYCLE);
