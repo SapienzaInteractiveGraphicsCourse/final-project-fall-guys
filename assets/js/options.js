@@ -1,6 +1,9 @@
 var mb = "Off";
 var shadow = "Off";
 
+// Call loadSettings() to load and apply settings when the page loads
+loadSettings();
+
 const defaultPlayerOneUsername = "Player One";
 const defaultPlayerTwoUsername = "Player Two";
 const playerOneUsername = localStorage.getItem("playerOne");
@@ -15,6 +18,23 @@ playerTwoInput.placeholder = playerTwoUsername || defaultPlayerTwoUsername;
 playerOneInput.value = playerOneUsername || defaultPlayerOneUsername;
 playerTwoInput.value = playerTwoUsername || defaultPlayerTwoUsername;
 
+// Function to load settings from localStorage
+function loadSettings() {
+
+    // Load other settings
+    const loadedDifficulty = localStorage.getItem("difficulty") || "Normal";
+    const loadedMap = localStorage.getItem("maps") || "Map-1";
+    const loadedMotionBlur = localStorage.getItem("motion_blur") || "Off";
+    const loadedTexture = localStorage.getItem("texture") || "Color";
+    const loadedVolume = localStorage.getItem("volume") || 0.5;
+
+    // Update UI elements with loaded settings
+    document.getElementById('difficulty').innerHTML = loadedDifficulty;
+    document.getElementById('maps').innerHTML = loadedMap;
+    document.getElementById('motionBlur').innerHTML = loadedMotionBlur;
+    document.getElementById('texture').innerHTML = loadedTexture;
+    document.getElementById("volume").value = loadedVolume;
+}
 
 function decreaseDifficulty() {
     var diff = document.getElementById('difficulty').innerHTML;
