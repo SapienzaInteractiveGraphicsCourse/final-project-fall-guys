@@ -1133,6 +1133,8 @@ function configure_skybox_material(scene, skybox) {
         skyboxMaterial.reflectionTexture = new BABYLON.CubeTexture(Assets.textures.sky3.Url, scene);
     } else if (maps == "Map-5") {
         skyboxMaterial.reflectionTexture = new BABYLON.CubeTexture(Assets.textures.sky4.Url, scene);
+    } else {
+        skyboxMaterial.reflectionTexture = new BABYLON.CubeTexture(Assets.textures.sky.Url, scene);
     }
     skyboxMaterial.backFaceCulling = false;
     skyboxMaterial.reflectionTexture.coordinatesMode = BABYLON.Texture.SKYBOX_MODE;
