@@ -1040,7 +1040,7 @@ const createScene = async function () {
                                 setTimeout(endSphereSound1, 1000); // Call after 2 seconds
                                 invicibleTwo = true;
                                 bubbleSphereTwo.isVisible = true;
-                                setTimeout(finishInvicibilityTwo, INVICIBILITY_TIME); // Call after 2 seconds
+                                setTimeout(finishInvicibilityTwo, invicibilityTime); // Call after 2 seconds
                             } else {
                                 sphere2Sound.play();
                                 setTimeout(endSphereSound2, 2000); // Call after 2 seconds
